@@ -52,3 +52,14 @@ next-env.d.ts
 /minikube-linux-amd64
 minikube-linux-amd64
 ./.gitignore
+
+backend-secrets
+cross-calls.txt
+db_pool.txt
+direct_50.jtl
+direct.jmx
+jmeter.log
+openapi_8001.json
+openapi_8002.json
+openapi_8003.json
+patch.json
