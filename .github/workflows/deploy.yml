@@ -108,6 +108,7 @@ jobs:
           QUIZS_DB_URL: ${{ secrets.QUIZS_DB_URL }}
           LEARNING_PROGRESS_DB_URL: ${{ secrets.LEARNING_PROGRESS_DB_URL }}
           FRONTEND_HOST: ${{ secrets.NEXT_PUBLIC_FRONTEND }}
+          STORAGE_API_URL: ${{ secrets.STORAGE_API_URL }}
         run: |
           kubectl create secret generic backend-secrets `
             --from-literal=SECRET_KEY="$env:SECRET_KEY" `
@@ -120,7 +121,8 @@ jobs:
             --from-literal=LEARNING_PROGRESS_DB_URL="$env:LEARNING_PROGRESS_DB_URL" `
             --from-literal=FRONTEND_HOST="$env:FRONTEND_HOST" `
             --from-literal=BACKEND_CORS_ORIGINS="$env:FRONTEND_HOST" `
-            --dry-run=client -o yaml | kubectl apply -f -
+            --from-literal=STORAGE_API_URL="$env:STORAGE_API_URL" `
+            --dry-run=client -o yaml | kubectl apply -f - 
 
       # Thay DOCKER_USER trong manifest bằng Docker Hub username thật rồi apply
       - name: Deploy Manifests

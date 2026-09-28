@@ -37,8 +37,8 @@
 
 import httpx
 from fastapi import UploadFile, HTTPException, status
-
-STORAGE_API_URL = "http://localhost:9000"
+from app.core.config import settings
+STORAGE_API_URL = settings.STORAGE_API_URL
 
 class CRUDCourseMedia:
     def upload_image(self, file: UploadFile, sub_path: str = "course-media/images") -> str:
