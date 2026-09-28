@@ -31,10 +31,7 @@
 # crud_course_media = CRUDCourseMedia()
 
 
-
-
-
-
+#server
 import httpx
 from fastapi import UploadFile, HTTPException, status
 from app.core.config import settings
