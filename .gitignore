@@ -54,7 +54,7 @@ minikube-linux-amd64
 ./.gitignore
 
 backend-secrets
-cross-calls.txt
+cross_calls.txt
 db_pool.txt
 direct_50.jtl
 direct.jmx
