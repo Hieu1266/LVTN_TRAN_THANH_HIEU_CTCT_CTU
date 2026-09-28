@@ -102,6 +102,8 @@ def start_quiz_submission(
 
     # 1. Lấy thông tin bài thi và kiểm tra trạng thái
     quiz = crud_quiz.get_by_id(db, quiz.quiz_id)
+    if quiz is None:
+        raise HTTPException(status_code=404, detail="Lesson này chưa có quiz")
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy bài thi")
     

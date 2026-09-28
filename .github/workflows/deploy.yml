@@ -47,8 +47,8 @@ jobs:
           file: ./backend/service/${{ matrix.service }}/Dockerfile
           push: true
           tags: ${{ env.DOCKER_USERNAME }}/${{ matrix.service }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
   # ==========================================
   # JOB 2: Build & Push Next.js Frontend
@@ -75,15 +75,15 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: ${{ env.DOCKER_USERNAME }}/frontend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
           build-args: |
-            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
             NEXT_PUBLIC_FRONTEND=${{ secrets.NEXT_PUBLIC_FRONTEND }}
             NEXT_PUBLIC_USER_BACKEND_URL=${{ secrets.NEXT_PUBLIC_USER_BACKEND_URL }}
             NEXT_PUBLIC_COURSE_BACKEND_URL=${{ secrets.NEXT_PUBLIC_COURSE_BACKEND_URL }}
             NEXT_PUBLIC_EXAM_BACKEND_URL=${{ secrets.NEXT_PUBLIC_EXAM_BACKEND_URL }}
             NEXT_PUBLIC_PROGRESS_BACKEND_URL=${{ secrets.NEXT_PUBLIC_PROGRESS_BACKEND_URL }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
   # ==========================================
   # JOB 3: Deploy lên Kubernetes Cluster (Local)
@@ -95,14 +95,42 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy Manifests
+      # Tạo/cập nhật Secret trực tiếp từ GitHub Secrets (không commit file secret vào repo)
+      - name: Create backend secret
+        shell: powershell
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          ALGORITHM: ${{ secrets.ALGORITHM }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET_KEY: ${{ secrets.CLIENT_SECRET_KEY }}
+          USERS_DB_URL: ${{ secrets.USERS_DB_URL }}
+          COURSES_DB_URL: ${{ secrets.COURSES_DB_URL }}
+          QUIZS_DB_URL: ${{ secrets.QUIZS_DB_URL }}
+          LEARNING_PROGRESS_DB_URL: ${{ secrets.LEARNING_PROGRESS_DB_URL }}
+          FRONTEND_HOST: ${{ secrets.NEXT_PUBLIC_FRONTEND }}
         run: |
-          kubectl apply -f k8s/backend-secrets.yml
-          kubectl apply -f k8s/backend.yml
-          kubectl apply -f k8s/frontend.yml
+          kubectl create secret generic backend-secrets `
+            --from-literal=SECRET_KEY="$env:SECRET_KEY" `
+            --from-literal=ALGORITHM="$env:ALGORITHM" `
+            --from-literal=CLIENT_ID="$env:CLIENT_ID" `
+            --from-literal=CLIENT_SECRET_KEY="$env:CLIENT_SECRET_KEY" `
+            --from-literal=USERS_DB_URL="$env:USERS_DB_URL" `
+            --from-literal=COURSES_DB_URL="$env:COURSES_DB_URL" `
+            --from-literal=QUIZS_DB_URL="$env:QUIZS_DB_URL" `
+            --from-literal=LEARNING_PROGRESS_DB_URL="$env:LEARNING_PROGRESS_DB_URL" `
+            --from-literal=FRONTEND_HOST="$env:FRONTEND_HOST" `
+            --from-literal=BACKEND_CORS_ORIGINS="$env:FRONTEND_HOST" `
+            --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl rollout restart deployment/course-service
-          kubectl rollout restart deployment/learning-progress-service
-          kubectl rollout restart deployment/quiz-exam-service
+      # Thay DOCKER_USER trong manifest bằng Docker Hub username thật rồi apply
+      - name: Deploy Manifests
+        shell: powershell
+        run: |
+          (Get-Content k8s/backend.yml -Raw) -replace 'DOCKER_USER', $env:DOCKER_USERNAME | kubectl apply -f -
+          (Get-Content k8s/frontend.yml -Raw) -replace 'DOCKER_USER', $env:DOCKER_USERNAME | kubectl apply -f -
+
           kubectl rollout restart deployment/user-service
+          kubectl rollout restart deployment/course-service
+          kubectl rollout restart deployment/quiz-exam-service
+          kubectl rollout restart deployment/learning-progress-service
           kubectl rollout restart deployment/frontend

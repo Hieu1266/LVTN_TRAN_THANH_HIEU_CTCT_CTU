@@ -60,7 +60,7 @@ def fetch_user_name_by_id(user_id: UUID) -> Optional[str]:
     Hàm trợ lý gọi API sang User Service để lấy tên người dùng theo user_id.
     Target endpoint: GET /get-name/{user_id}
     """
-    url = f"{USER_SERVICE_BASE_URL}/get-name/{user_id}"
+    url = f"{USER_SERVICE_BASE_URL}/users/get-name/{user_id}"
     try:
         with httpx.Client(timeout=5.0) as client:
             response = client.get(url)

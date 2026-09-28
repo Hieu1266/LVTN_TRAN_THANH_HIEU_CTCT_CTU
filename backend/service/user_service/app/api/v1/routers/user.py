@@ -11,7 +11,7 @@ from uuid import UUID
 
 router = APIRouter()
 
-@router.get("/get-user-list", response_model=List[UserGeneralInfo])
+@router.get("/users/get-user-list", response_model=List[UserGeneralInfo])
 def get_user_list(
     session: SessionDep,
     query: UserListQuery = Depends(),
@@ -63,7 +63,7 @@ def get_user_list(
 
     return user_info_list
 
-@router.get("/me",  response_model=UserGeneralInfo)
+@router.get("/users/me",  response_model=UserGeneralInfo)
 def get_my_info(
     db: SessionDep,
     current_user: dict = Depends(get_current_user_role)
@@ -83,7 +83,7 @@ def get_my_info(
     user_data["display_status"] = display_status
     return user_data
 
-@router.post("/create-user")
+@router.post("/users/create-user")
 def create_user(
     session: SessionDep,
     new_user: UserCreate,
@@ -107,7 +107,7 @@ def create_user(
 
 
 
-@router.get("/get-user/{user_id}", response_model=UserDetailInfo)
+@router.get("/users/get-user/{user_id}", response_model=UserDetailInfo)
 def get_user(
     session: SessionDep,
     user_id: UUID,
@@ -127,7 +127,7 @@ def get_user(
 
 
 
-@router.patch("/update-role/{user_id}", response_model=UserDetailInfo)
+@router.patch("/users/update-role/{user_id}", response_model=UserDetailInfo)
 def update_user_role(
     session: SessionDep,
     user_id: UUID, 
@@ -155,10 +155,10 @@ def update_user_role(
     
     return user_data
 
-@router.patch("/update-status/{user_id}", response_model=UserDetailInfo)
+@router.patch("/users/update-status/{user_id}", response_model=UserDetailInfo)
 def update_user_status(
     session: SessionDep,
-    user_id: UUID,                  
+    user_id: UUID,
     status_update: UserStatusUpdate, 
     current_user: dict = Depends(RoleChecker(["Admin"])) 
 ):
@@ -182,7 +182,7 @@ def update_user_status(
     
     return user_data
 
-@router.put("/update-user/{user_id}", response_model=UserDetailInfo)
+@router.put("/users/update-user/{user_id}", response_model=UserDetailInfo)
 def update_user(
     session: SessionDep,
     user_id: UUID,  # ĐÃ THÊM: Tiếp nhận tham số user_id kiểu UUID từ URL path
@@ -216,7 +216,7 @@ def update_user(
     
     return user_data
 
-@router.get("/get-instructor-list", response_model=List[UserGeneralInfo])
+@router.get("/users/get-instructor-list", response_model=List[UserGeneralInfo])
 def get_instructor_list(
     session: SessionDep,
     query: UserListQuery = Depends(),
@@ -248,14 +248,14 @@ def get_instructor_list(
 
     return user_info_list
 
-@router.get("/get-name/{user_id}")
+@router.get("/users/get-name/{user_id}")
 def get_name_by_id(
     db: SessionDep,
     user_id: UUID
 ):
     return crud_user.get_name_by_id(db, user_id)
 
-@router.post("/logout")
+@router.post("/users/logout")
 def logout(response: Response):
     # 1. Xóa cookie token (HttpOnly)
     response.delete_cookie(
@@ -273,7 +273,7 @@ def logout(response: Response):
     return {"message": "Đăng xuất thành công!"}
 
 
-@router.get("/is-tester/{user_id}")
+@router.get("/users/is-tester/{user_id}")
 def is_tester(
     db: SessionDep,
     user_id: UUID,
@@ -288,7 +288,7 @@ def is_tester(
     return crud_user.is_tester(db, user_id)
 
 
-@router.get("/get-tester-list", response_model=List[UserGeneralInfo])
+@router.get("/users/get-tester-list", response_model=List[UserGeneralInfo])
 def get_tester_list(
     session: SessionDep,
     skip: int = Query(0, ge=0, description="Số lượng bản ghi bỏ qua"),

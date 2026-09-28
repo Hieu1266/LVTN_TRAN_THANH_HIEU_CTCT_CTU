@@ -83,7 +83,7 @@ def call_get_usernames_service(tester_ids: list[UUID], token: str = None) -> dic
         for tester_id in tester_ids:
             try:
 
-                response = client.get(f"{USER_SERVICE_URL}/get-user/{tester_id}")
+                response = client.get(f"{USER_SERVICE_URL}/users/get-user/{tester_id}")
                 
                 if response.status_code == 200:
                     data = response.json()

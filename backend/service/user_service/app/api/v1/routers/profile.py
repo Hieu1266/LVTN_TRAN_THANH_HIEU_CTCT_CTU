@@ -10,7 +10,7 @@ from app.crud.user import crud_user
 
 router = APIRouter()
 
-@router.patch("/update-profile")
+@router.patch("/users/update-profile")
 def update_profile(
     profile_update: ProfileUpdate,
     session: SessionDep,
@@ -42,7 +42,7 @@ def update_profile(
         "profile": updated_profile
     }
 
-@router.get("/get-profile", response_model=ProfileInfo)
+@router.get("/users/get-profile", response_model=ProfileInfo)
 def get_profile(
     session: SessionDep,
     current_user: dict = Depends(get_current_user_role)

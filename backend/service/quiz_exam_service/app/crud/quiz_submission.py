@@ -380,7 +380,7 @@ class CRUDQuizSubmission(CRUDBase[QuizSubmission, QuizSubmissionCreate, QuizSubm
         with httpx.Client(timeout=5.0) as client:
             for uid in user_ids:
                 try:
-                    res = client.get(f"{user_service_url}/get-user/{uid}", headers=headers)
+                    res = client.get(f"{user_service_url}/users/get-user/{uid}", headers=headers)
                     if res.status_code == 200:
                         data = res.json()
                         user_map[str(uid)] = {

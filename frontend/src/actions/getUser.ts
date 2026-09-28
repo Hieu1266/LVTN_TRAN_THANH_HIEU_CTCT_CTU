@@ -93,7 +93,7 @@ export async function getrList(
     if (!headers) {
       return { success: false, message: "Không tìm thấy Token đăng nhập trong Cookie!" };
     }
-    let url = `${userBackendUrl}/get-user-list?skip=${skip}&limit=${limit}`;
+    let url = `${userBackendUrl}/users/get-user-list?skip=${skip}&limit=${limit}`;
     if (statusId) url += `&status_id=${statusId}`;
     if (roleId !== undefined) url += `&role_id=${roleId}`;
 
@@ -134,7 +134,7 @@ export async function updateUserStatus(userId: string, nextStatus: any): Promise
     // Nếu status_id ở Backend là dạng chuỗi chữ (ví dụ: "ACTIVE", "BLOCKED") thì giữ nguyên nextStatus
     const statusIdFormatted = nextStatus;
 
-    const res = await fetch(`${userBackendUrl}/update-status/${userId}`, {
+    const res = await fetch(`${userBackendUrl}/users/update-status/${userId}`, {
       method: "PATCH",
       headers: headers,
       body: JSON.stringify({
@@ -177,7 +177,7 @@ export async function updateUserInfo(userId: string, editUserData: any): Promise
       // avatar_url: rawData?.avatar_url || ""
     };
 
-    const res = await fetch(`${userBackendUrl}/update-user/${userId}`, {
+    const res = await fetch(`${userBackendUrl}/users/update-user/${userId}`, {
       method: "PUT",
       headers: headers,
       body: JSON.stringify(formattedPayload),
@@ -201,7 +201,7 @@ export async function registerAccount(newUserData: any): Promise<ActionResponseS
     const headers = await getAuthHeaders();
     if (!headers) return { success: false, message: "Hết hạn phiên đăng nhập" };
 
-    const res = await fetch(`${userBackendUrl}/create-user`, {
+    const res = await fetch(`${userBackendUrl}/users/create-user`, {
       method: "POST",
       headers: headers,
       body: JSON.stringify(newUserData),
@@ -222,7 +222,7 @@ export async function updateUserRole(userId: string, roleId: number): Promise<Ac
     const headers = await getAuthHeaders();
     if (!headers) return { success: false, message: "Hết hạn phiên đăng nhập" };
 
-    const res = await fetch(`${userBackendUrl}/update-role/${userId}`, {
+    const res = await fetch(`${userBackendUrl}/users/update-role/${userId}`, {
       method: "PATCH",
       headers: headers,
       body: JSON.stringify({ role_id: roleId }), // Gửi đúng { role_id: số }
@@ -269,7 +269,7 @@ export async function getInforUser(userId: string): Promise<ActionResponseDetail
     if (!headers) return { success: false, message: "Hết hạn phiên đăng nhập" };
 
     // Đúng chuẩn Swagger: Phương thức GET, truyền userId trực tiếp lên URL thanh thoát
-    const res = await fetch(`${userBackendUrl}/get-user/${userId}`, {
+    const res = await fetch(`${userBackendUrl}/users/get-user/${userId}`, {
       method: "GET",
       headers: headers,
       cache: "no-store",
@@ -309,7 +309,7 @@ export async function getrInstructorList(
     if (!headers) {
       return { success: false, message: "Không tìm thấy Token đăng nhập trong Cookie!" };
     }
-    const url = `${userBackendUrl}/get-instructor-list?skip=${skip}&limit=${limit}&status_id=${statusId}&role_id=${roleId}`;
+    const url = `${userBackendUrl}/users/get-instructor-list?skip=${skip}&limit=${limit}&status_id=${statusId}&role_id=${roleId}`;
     const res = await fetch(url, {
       method: "GET",
       headers: headers,
@@ -341,7 +341,7 @@ export async function fetchCurrentUser(): Promise<UserDataInfo | null> {
   if (!backendUrl) throw new Error("Thiếu NEXT_PUBLIC_USER_BACKEND_URL");
   const headers = await getAuthHeaders();
   if (!headers) return null;
-  const response = await fetch(`${backendUrl}/me`, { method: "GET", headers, next: { revalidate: 0 } });
+  const response = await fetch(`${backendUrl}/users/me`, { method: "GET", headers, next: { revalidate: 0 } });
   if (!response.ok) return null;
   return response.json();
 }
@@ -353,7 +353,7 @@ export async function fetchUserProfile(): Promise<ProfileInfo | null> {
   const headers = await getAuthHeaders();
   if (!headers) return null;
 
-  const response = await fetch(`${backendUrl}/get-profile`, {
+  const response = await fetch(`${backendUrl}/users/get-profile`, {
     method: "GET",
     headers,
     next: { revalidate: 0 }
@@ -371,7 +371,7 @@ export async function updateUserData(userId: string, data: UserInfoUpdate): Prom
   if (!headers) return false;
 
   // Thêm userId vào sau đường dẫn giống với updateUserInfo
-  const response = await fetch(`${backendUrl}/update-user/${userId}`, {
+  const response = await fetch(`${backendUrl}/users/update-user/${userId}`, {
     method: "PUT", // Hoặc PATCH tùy thuộc vào thiết kế Backend của bạn
     headers,
     body: JSON.stringify(data),
@@ -388,7 +388,7 @@ export async function updateUserProfile(data: ProfileUpdate): Promise<boolean> {
   const headers = await getAuthHeaders();
   if (!headers) return false;
 
-  const response = await fetch(`${backendUrl}/update-profile`, {
+  const response = await fetch(`${backendUrl}/users/update-profile`, {
     method: "PATCH",
     headers,
     body: JSON.stringify(data),
@@ -408,7 +408,7 @@ export async function getTesterListAction(
       return { success: false, message: "Không tìm thấy Token đăng nhập trong Cookie!" };
     }
 
-    const res = await fetch(`${userBackendUrl}/get-tester-list?skip=0&limit=1000`, {
+    const res = await fetch(`${userBackendUrl}/users/get-tester-list?skip=0&limit=1000`, {
       method: "GET",
       headers,
       cache: "no-store",

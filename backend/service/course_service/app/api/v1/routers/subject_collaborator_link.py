@@ -60,7 +60,7 @@ async def create_collab_link(
         )
 
     # 3. Gọi HTTP Request sang User Service để kiểm tra vai trò (is-tester)
-    user_service_url = f"{USER_SERVICE}/is-tester/{obj_in.collaborator_id}"
+    user_service_url = f"{USER_SERVICE}/users/is-tester/{obj_in.collaborator_id}"
     headers = {"Authorization": f"Bearer {token}"}
 
     try:
@@ -214,7 +214,7 @@ async def get_subject_collaborators(
         async def fetch_name(collaborator_id: UUID) -> Optional[str]:
             try:
                 resp = await client.get(
-                    f"{USER_SERVICE}/get-name/{collaborator_id}", headers=headers, timeout=5.0
+                    f"{USER_SERVICE}/users/get-name/{collaborator_id}", headers=headers, timeout=5.0
                 )
                 return resp.json() if resp.status_code == status.HTTP_200_OK else None
             except httpx.RequestError:

@@ -1,4 +1,6 @@
-from sqlalchemy import create_engine
+# from sqlalchemy import create_engine
+from sqlmodel import create_engine
+
 from app.core.config import settings
 from sqlmodel import SQLModel, Session, select, func
 

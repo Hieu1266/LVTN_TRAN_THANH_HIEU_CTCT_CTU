@@ -1,36 +1,9 @@
 'use server'
 
 import { cookies } from 'next/headers'
-
+import { ActionResponse, GoogleAuthResponse} from "@/types/auth";
 const userBackendUrl = process.env.NEXT_PUBLIC_USER_BACKEND_URL;
 
-// Cập nhật Interface để chứa redirectTo
-export interface ActionResponse {
-  success: boolean
-  message: string
-  redirectTo?: string // Thêm trường này
-  user?: {
-    username: string
-    email: string
-    role: string
-  }
-}
-
-interface GoogleAuthResponse {
-  message: string;
-  access_token: string;
-  token_type: string;
-  user: {
-    username: string;
-    email: string;
-    role: string;
-    profile: {
-      firstname: string | null;
-      lastname: string | null;
-      avatar_url: string | null;
-    };
-  };
-}
 
 // Hàm helper để phân loại URL theo Role
 function getRedirectUrlByRole(role: string): string {
@@ -88,24 +61,6 @@ export async function registerAccount(name: string, email: string, password: str
   }
 }
 
-// async function setAuthCookies(data: any) {
-//   const cookieStore = await cookies()
-//   const cookieConfig = {
-//     secure: process.env.NODE_ENV === 'production',
-//     sameSite: 'lax' as const,
-//     maxAge: 60 * 60 * 24,
-//     path: '/',
-//   };
-
-//   if (data.access_token) {
-//     cookieStore.set('token', data.access_token, { ...cookieConfig, httpOnly: true })
-//   }
-
-//   if (data.user) {
-//     cookieStore.set('user_info', JSON.stringify(data.user), { ...cookieConfig, httpOnly: false })
-//     cookieStore.set('user_role', data.role.toLowerCase(), { expires: 7 })
-//   }
-// }
 
 // ------------------ Action Đăng Nhập ----------------------
 export async function loginUserAction(email: string, password: string): Promise<ActionResponse> {
@@ -143,7 +98,7 @@ export async function loginUserAction(email: string, password: string): Promise<
 export async function loginGoogleUserAction(googleAccessToken: string): Promise<ActionResponse> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_USER_BACKEND_URL;
-    const res = await fetch(`${baseUrl}/auth/google/login`, {
+    const res = await fetch(`${baseUrl}/users/auth/google/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: googleAccessToken })
@@ -167,7 +122,7 @@ export async function loginGoogleUserAction(googleAccessToken: string): Promise<
 export async function registerGoogleUserAction(googleAccessToken: string): Promise<ActionResponse> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_USER_BACKEND_URL;
-    const res = await fetch(`${baseUrl}/auth/google/register`, {
+    const res = await fetch(`${baseUrl}/users/auth/google/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: googleAccessToken })

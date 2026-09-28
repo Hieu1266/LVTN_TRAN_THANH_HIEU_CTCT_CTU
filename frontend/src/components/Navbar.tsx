@@ -1,8 +1,11 @@
 "use client";
+
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { logoutUserAction } from "@/actions/authUser";
+
+import NotificationBell from "@/components/notification";
 
 export default function Navbar() {
   const router = useRouter();
@@ -45,22 +48,17 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      // 1. Gọi Next.js Server Action để xóa cookie httpOnly (token)
       await logoutUserAction();
 
-      // 2. Xóa các cookie phía client (phòng khi có cookie không phải httpOnly)
       document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
       document.cookie = "user_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 
-      // 3. Xóa dữ liệu trong localStorage
       localStorage.clear();
 
-      // 4. Cập nhật state
       setIsLoggedIn(false);
       setShowUserMenu(false);
       alert("Đã đăng xuất tài khoản!");
 
-      // 5. Chuyển hướng và làm sạch cache trình duyệt
       window.location.href = "/";
     } catch (error) {
       console.error("Lỗi đăng xuất:", error);
@@ -82,6 +80,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 px-6 py-3.5 flex justify-between items-center font-sans">
+      {/* Góc trái: Logo */}
       <div className="flex items-center space-x-6">
         <Link
           href={isLoggedIn ? "/home" : "/"}
@@ -91,7 +90,11 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="flex items-center space-x-4">
+      {/* Góc phải: Chuông thông báo + User Profile / Login */}
+      <div className="flex items-center space-x-3">
+        {/* Chuông thông báo được đặt cạnh Avatar khi đã đăng nhập */}
+        {isLoggedIn && <NotificationBell />}
+
         {isLoggedIn ? (
           <div className="relative" ref={userRef}>
             <button

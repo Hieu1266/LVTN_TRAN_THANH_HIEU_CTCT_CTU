@@ -1,4 +1,5 @@
-from sqlalchemy import create_engine
+# from sqlalchemy import create_engine
+from sqlmodel import create_engine
 from app.core.config import settings
 from sqlmodel import SQLModel, Session, select, func
 from app.models.role import Role
@@ -6,6 +7,8 @@ from app.models.status_catalog import StatusCatalog, UserStatus
 from app.models.user import User
 from app.models.profile import Profile
 from app.core.security import hash_password
+
+
 engine = create_engine(
     settings.USERS_DB_URL,
     pool_size=30,        

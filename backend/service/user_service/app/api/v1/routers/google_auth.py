@@ -13,7 +13,7 @@ router = APIRouter()
 # ==========================================
 # 1. API: ĐĂNG NHẬP BẰNG GOOGLE
 # ==========================================
-@router.post("/auth/google/login")
+@router.post("/users/auth/google/login")
 def google_login(session: SessionDep, body: TokenBody):
     payload = verify_google_token(body.token)
     if not payload:
@@ -48,7 +48,7 @@ def google_login(session: SessionDep, body: TokenBody):
 # ==========================================
 # 2. API:ĐĂNG KÝ BẰNG GOOGLE (CHẶN TRÙNG EMAIL)
 # ==========================================
-@router.post("/auth/google/register")
+@router.post("/users/auth/google/register")
 def google_register(session: SessionDep, body: TokenBody):
     payload = verify_google_token(body.token)
     if not payload:

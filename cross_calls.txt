@@ -1,0 +1,194 @@
+﻿D:\LVTN\Remote-Learning-LUMER\backend\service\auth_service\app\core\security.py:8: authServer = settings.BACKEND_USER_URL + "/login"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:3: Đặt file này CẠNH file .env của từng service (user_service, course_service,
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:4: learning_progress_service, quiz_exam_service). KHÔNG đặt trong config_service.
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:19: # user_service / / learning_progress_service / quiz_exam_service / frontend
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:20: SERVICE_NAME = "course_service"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:24: CONFIG_SERVICE_URL = os.getenv("CONFIG_SERVICE_URL", "http://127.0.0.1:8005")
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:30: resp = httpx.get(
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:31: f"{CONFIG_SERVICE_URL}/config/{SERVICE_NAME}/export",
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:37: print(f"[sync_env] Không gọi được config_service: {e}")
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\sync_env.py:56: return  # config_service đang tắt hoặc lỗi mạng, bỏ qua lần này
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:26: PROGRESS_SERVICE_URL = settings.BACKEND_LEARNING_PROGRESS_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:27: USER_SERVICE_BASE_URL = settings.BACKEND_USER_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:63: url = f"{USER_SERVICE_BASE_URL}/users/get-name/{user_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:65: with httpx.Client(timeout=5.0) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:70: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:131: async with httpx.AsyncClient(timeout=3.0) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:133: url = f"{PROGRESS_SERVICE_URL}/course_enrollment/internal/top-enrolled-courses"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:321: LEARNING_PROGRESS_SERVICE = settings.BACKEND_LEARNING_PROGRESS_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:322: EXAM_QUIZ_SERVICE = settings.BACKEND_QUIZ_EXAM_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:331: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:337: f"{LEARNING_PROGRESS_SERVICE}/course_enrollment/is-enrolled/{course_id}",
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:355: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:357: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:403: f"{EXAM_QUIZ_SERVICE}/quiz-submissions/get-quiz-status/{lesson.lesson_id}",
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:414: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:422: f"{EXAM_QUIZ_SERVICE}/quizzes/{lesson.lesson_id}/had-quiz",
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\course.py:434: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\lesson.py:19: QUIZ_SERVICE_BASE_URL = settings.BACKEND_QUIZ_EXAM_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\lesson.py:29: async with httpx.AsyncClient(timeout=5.0) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\lesson.py:33: response = await client.get(f"{QUIZ_SERVICE_BASE_URL}/quizzes/{lesson_id}/had-quiz")
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:20: QUIZ_EXAM_URL = settings.BACKEND_QUIZ_EXAM_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:68: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:78: quiz_service_endpoint = f"{QUIZ_EXAM_URL}/questions/total-lessons/{subject.subject_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:81: response = await client.get(quiz_service_endpoint)
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:88: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:116: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:124: quiz_service_endpoint = f"{QUIZ_EXAM_URL}/quizzes/get-total-quizzes/{subject.subject_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:127: response = await client.get(quiz_service_endpoint)
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:134: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:160: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:166: quiz_service_endpoint = f"{QUIZ_EXAM_URL}/quizzes/get-total-quizzes/{subject.subject_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:168: response = await client.get(quiz_service_endpoint, timeout=5.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject.py:174: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:16: USER_SERVICE = settings.BACKEND_USER_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:63: user_service_url = f"{USER_SERVICE}/users/is-tester/{obj_in.collaborator_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:67: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:68: response = await client.get(user_service_url, headers=headers, timeout=5.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:88: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:90: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:161: bài thi), tương tự cách course_service gọi User Service để kiểm tra "/is-tester".
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:213: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:217: f"{USER_SERVICE}/users/get-name/{collaborator_id}", headers=headers, timeout=5.0
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\api\v1\routers\subject_collaborator_link.py:220: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\core\security.py:8: authServer = settings.BACKEND_USER_URL + "/login"
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\crud\course_media.py:48: resp = httpx.post(f"{STORAGE_API_URL}/upload", files=files, data=data, timeout=30)
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\crud\course_media.py:53: except httpx.HTTPError as e:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\crud\curriculum_media.py:43: #             resp = httpx.post(f"{STORAGE_API_URL}/upload", files=files, data=data, timeout=30)
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\crud\curriculum_media.py:47: #         except httpx.HTTPError as e:
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\crud\syllabus_media.py:11: resp = httpx.post(f"{STORAGE_API_URL}/upload", files=files, data=data, timeout=30)
+D:\LVTN\Remote-Learning-LUMER\backend\service\course_service\app\crud\syllabus_media.py:17: except httpx.HTTPError as e:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:3: Đặt file này CẠNH file .env của từng service (user_service, course_service,
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:4: learning_progress_service, quiz_exam_service). KHÔNG đặt trong config_service.
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:19: # user_service / course_service / learning_progress_service / quiz_exam_service / frontend
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:20: SERVICE_NAME = "learning_progress_service"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:24: CONFIG_SERVICE_URL = os.getenv("CONFIG_SERVICE_URL", "http://127.0.0.1:8005")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:30: resp = httpx.get(
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:31: f"{CONFIG_SERVICE_URL}/config/{SERVICE_NAME}/export",
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:37: print(f"[sync_env] Không gọi được config_service: {e}")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\sync_env.py:56: return  # config_service đang tắt hoặc lỗi mạng, bỏ qua lần này
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\comment.py:29: def call_get_usernames_service(tester_ids: list[UUID], token: Optional[str] = None) -> dict[str, str]:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\comment.py:34: USER_SERVICE_URL = getattr(settings, "BACKEND_USER_URL", "http://localhost:8000/api/v1")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\comment.py:36: timeout = httpx.Timeout(connect=3.0, read=3.0, write=3.0, pool=3.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\comment.py:42: with httpx.Client(timeout=timeout, headers=headers) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\comment.py:46: response = client.get(f"{USER_SERVICE_URL}/users/get-user/{tester_id}")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\comment.py:53: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\comment.py:183: username_map = call_get_usernames_service(tester_ids, token=token)
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:49: course_lessons_url = f"{settings.BACKEND_COURSE_URL}/courses/{course_id}/lessons"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:51: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:62: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:63: raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Course Service sập.")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:103: course_lessons_url = f"{settings.BACKEND_COURSE_URL}/courses/{course_id}/lessons"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:105: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:116: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:117: raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Course Service sập.")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:156: async def fetch_course_title(client: httpx.AsyncClient, course_id: UUID) -> str:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:157: url = f"{settings.BACKEND_COURSE_URL}/courses/title/{course_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:161: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:164: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:322: async def fetch_course_title(client: httpx.AsyncClient, course_id: UUID) -> str:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:323: url = f"{settings.BACKEND_COURSE_URL}/courses/title/{course_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:327: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\course_enrollment.py:330: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\lesson_progress.py:20: course_lessons_url = f"{settings.BACKEND_COURSE_URL}/courses/{course_id}/lessons"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\lesson_progress.py:21: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\lesson_progress.py:27: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\lesson_progress.py:29: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\lesson_progress.py:34: url = f"{settings.BACKEND_COURSE_URL}/courses/{course_id}/total-lessons"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\lesson_progress.py:35: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\api\v1\routers\lesson_progress.py:41: except httpx.RequestError:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:10: authServer = settings.BACKEND_USER_URL + "/login"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:51: # def call_get_usernames_service(tester_ids: list[UUID]) -> dict[str, str]:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:52: #     USER_SERVICE_URL = settings.BACKEND_USER_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:55: #     timeout = httpx.Timeout(connect=3.0, read=3.0, write=3.0, pool=3.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:57: #     with httpx.Client(timeout=timeout) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:60: #                 response = client.get(f"{USER_SERVICE_URL}/get-name/{tester_id}")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:65: #             except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:72: def call_get_usernames_service(tester_ids: list[UUID], token: str = None) -> dict[str, str]:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:73: USER_SERVICE_URL = settings.BACKEND_USER_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:76: timeout = httpx.Timeout(connect=3.0, read=3.0, write=3.0, pool=3.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:82: with httpx.Client(timeout=timeout, headers=headers) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:86: response = client.get(f"{USER_SERVICE_URL}/users/get-user/{tester_id}")
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\core\security.py:96: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\crud\course_enrollment.py:129: with httpx.Client(timeout=5.0) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\crud\course_enrollment.py:132: user_api_url = f"{settings.BACKEND_USER_URL.rstrip('/')}/users/get-name/{user_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\learning_progress_service\app\crud\course_enrollment.py:142: course_api_url = f"{settings.BACKEND_COURSE_URL.rstrip('/')}/courses/title/{course_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:3: Đặt file này CẠNH file .env của từng service (user_service, course_service,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:4: learning_progress_service, quiz_exam_service). KHÔNG đặt trong config_service.
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:19: # user_service / course_service / learning_progress_service /  / frontend
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:20: SERVICE_NAME = "quiz_exam_service"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:24: CONFIG_SERVICE_URL = os.getenv("CONFIG_SERVICE_URL", "http://127.0.0.1:8005")
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:30: resp = httpx.get(
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:31: f"{CONFIG_SERVICE_URL}/config/{SERVICE_NAME}/export",
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:37: print(f"[sync_env] Không gọi được config_service: {e}")
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\sync_env.py:56: return  # config_service đang tắt hoặc lỗi mạng, bỏ qua lần này
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:13: from app.core.security import get_current_user_role, call_check_instructor_service, RoleChecker, oauth2_scheme
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:34: is_instructor = call_check_instructor_service(instructor_id=user_id, subject_id=subject_id)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:55: is_instructor = call_check_instructor_service(instructor_id=user_id, subject_id=subject_id)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:130: is_instructor = call_check_instructor_service(instructor_id=user_id, subject_id=subject_id)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:195: is_instructor = call_check_instructor_service(instructor_id=user_id, subject_id=db_question.subject_id)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:336: COURSE_SERVICE_URL = settings.BACKEND_COURSE_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:353: async with httpx.AsyncClient(timeout=10.0) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:356: f"{COURSE_SERVICE_URL}/lessons/get-content/{lesson_id}",
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:369: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question.py:371: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question_option.py:4: from app.core.security import get_current_user_role, call_check_instructor_service
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\question_option.py:40: is_instructor = call_check_instructor_service(user_id, subject_id)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:21: COURSE_SERVICE_URL = settings.BACKEND_COURSE_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:24: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:26: url = f"{COURSE_SERVICE_URL}/subjects/get-owner/{subject_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:45: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:47: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:106: response = httpx.get(f"{COURSE_SERVICE_URL}/lessons/is-existed/{obj_in.target_lesson_id}", timeout=5.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:122: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:124: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:170: response = httpx.get(f"{COURSE_SERVICE_URL}/lessons/is-existed/{obj_in.target_lesson_id}", timeout=5.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:176: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz.py:178: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:23: COURSE_SERVICE = getattr(settings, "BACKEND_COURSE_URL", "http://localhost:8002/api/v1")
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:48: url = f"{COURSE_SERVICE}/course-collab-link/check-assignment/{subject_id}/{tester_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:52: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:54: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:56: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:297: progress_url = f"{settings.BACKEND_LEARNING_PROGRESS_URL}{endpoint_path}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:299: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:305: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:456: url = f"{settings.BACKEND_LEARNING_PROGRESS_URL}/course_enrollment/get-users-in-progress/{course_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:460: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:478: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:481: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:612: progress_url = f"{settings.BACKEND_LEARNING_PROGRESS_URL}/lesson_progress/teacher/lesson/{lesson_id}/grade-complete"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:622: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\quiz_submission.py:633: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\submission_detail.py:71: VIDEO_SERVICE_BASE_URL = settings.BACKEND_LEARNING_PROGRESS_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\submission_detail.py:131: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\submission_detail.py:134: f"{VIDEO_SERVICE_BASE_URL}/lesson/{lesson_id}/add-score",
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\submission_detail.py:140: except httpx.HTTPStatusError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\api\v1\routers\submission_detail.py:143: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\core\security.py:10: authServer = settings.BACKEND_USER_URL + "/login"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\core\security.py:49: def call_check_instructor_service(instructor_id: UUID, subject_id: UUID) -> bool:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\core\security.py:51: COURSE_SERVICE_URL = settings.BACKEND_COURSE_URL
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\core\security.py:60: with httpx.Client() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\core\security.py:61: response = client.get(f"{COURSE_SERVICE_URL}/syllabus/check-instructor", params=params, timeout=5.0)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\core\security.py:67: except httpx.RequestError as exc:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\core\security.py:71: status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\peer_review.py:91: progress_url = f"{settings.BACKEND_LEARNING_PROGRESS_URL}/lesson_progress/complete-peer-review-submission/{quiz.target_lesson_id}"
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\peer_review.py:93: async with httpx.AsyncClient() as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\peer_review.py:112: except httpx.RequestError as e:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\quiz_submission.py:377: user_service_url = getattr(settings, "BACKEND_USER_URL", "http://localhost:8000/api/v1")
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\quiz_submission.py:380: with httpx.Client(timeout=5.0) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\quiz_submission.py:383: res = client.get(f"{user_service_url}/users/get-user/{uid}", headers=headers)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\quiz_submission.py:423: user_service_url = getattr(settings, "BACKEND_USER_URL", "http://localhost:8000/api/v1")
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\quiz_submission.py:427: with httpx.Client(timeout=5.0) as client:
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\quiz_submission.py:428: res = client.get(f"{user_service_url}/get-user/{submission.user_id}", headers=headers)
+D:\LVTN\Remote-Learning-LUMER\backend\service\quiz_exam_service\app\crud\status_catalog.py:2: from backend.service.quiz_exam_service.app.crud.base import CRUDBase
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:3: Đặt file này CẠNH file .env của từng service (user_service, course_service,
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:4: learning_progress_service, quiz_exam_service). KHÔNG đặt trong config_service.
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:19: #  / course_service / learning_progress_service / quiz_exam_service / frontend
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:20: SERVICE_NAME = "user_service"
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:24: CONFIG_SERVICE_URL = os.getenv("CONFIG_SERVICE_URL", "http://127.0.0.1:8005")
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:30: resp = httpx.get(
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:31: f"{CONFIG_SERVICE_URL}/config/{SERVICE_NAME}/export",
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:37: print(f"[sync_env] Không gọi được config_service: {e}")
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\sync_env.py:56: return  # config_service đang tắt hoặc lỗi mạng, bỏ qua lần này
+D:\LVTN\Remote-Learning-LUMER\backend\service\user_service\app\core\security.py:86: response = requests.get(

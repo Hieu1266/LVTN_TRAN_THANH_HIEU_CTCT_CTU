@@ -129,7 +129,7 @@ class CRUDCourseEnrollment(CRUDBase[CourseEnrollment, CourseEnrollmentCreate, Co
                     with httpx.Client(timeout=5.0) as client:
                         # Lấy tên người dùng
                         try:
-                            user_api_url = f"{settings.BACKEND_USER_URL.rstrip('/')}/get-name/{user_id}"
+                            user_api_url = f"{settings.BACKEND_USER_URL.rstrip('/')}/users/get-name/{user_id}"
                             user_response = client.get(user_api_url)
                             if user_response.status_code == 200:
                                 res_json = user_response.json()

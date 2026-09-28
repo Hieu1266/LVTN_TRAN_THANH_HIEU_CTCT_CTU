@@ -254,7 +254,7 @@ export async function getInstructorsAction(): Promise<InstructorUser[]> {
     const roleId = 4;
     const statusId = "ACTIVE";
 
-    const url = `${userBackendUrl}/get-instructor-list?skip=${skip}&limit=${limit}&status_id=${statusId}&role_id=${roleId}`;
+    const url = `${userBackendUrl}/users/get-instructor-list?skip=${skip}&limit=${limit}&status_id=${statusId}&role_id=${roleId}`;
 
     const response = await fetch(url, {
       method: "GET",

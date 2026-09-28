@@ -1,9 +1,8 @@
 
-// Cập nhật Interface để chứa redirectTo
 export interface ActionResponse {
   success: boolean
   message: string
-  redirectTo?: string // Thêm trường này
+  redirectTo?: string
   user?: {
     username: string
     email: string

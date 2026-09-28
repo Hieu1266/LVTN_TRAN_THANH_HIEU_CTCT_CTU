@@ -1,5 +1,5 @@
 # ==========================================
-# 1. USER SERVICE
+# 1. USER-SERVICE
 # ==========================================
 apiVersion: apps/v1
 kind: Deployment
@@ -19,23 +19,12 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: mkhuiii/user-service:latest
-        imagePullPolicy: IfNotPresent
+        image: DOCKER_USER/user_service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
         env:
-        - name: PORT
-          value: "8000"
-        - name: CLIENT_ID
-          value: "373059704505-idbcgjtvf3pl94krkoeh67f4ars8fmte.apps.googleusercontent.com"
-        - name: CLIENT_SECRET_KEY
-          value: "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"
-        - name: USERS_DB_URL
-          value: "postgresql://postgres:abc123@postgres:5432/user_db"
-        - name: FRONTEND_HOST
-          value: "http://localhost:30080"
-        - name: STORAGE_API_URL
-          value: "http://storage-service:8000"
+        # URL gọi giữa các service (nội bộ k8s: tên Service + port trong container)
         - name: BACKEND_USER_URL
           value: "http://user-service:8000"
         - name: BACKEND_COURSE_URL
@@ -44,6 +33,7 @@ spec:
           value: "http://quiz-exam-service:8002"
         - name: BACKEND_LEARNING_PROGRESS_URL
           value: "http://learning-progress-service:8003"
+        # Các biến còn lại (DB URL, SECRET_KEY, CORS, FRONTEND_HOST...) lấy từ Secret
         envFrom:
         - secretRef:
             name: backend-secrets
@@ -60,16 +50,17 @@ kind: Service
 metadata:
   name: user-service
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 8000
     targetPort: 8000
+    nodePort: 30000
   selector:
     app: user-service
 
 ---
 # ==========================================
-# 2. COURSE SERVICE
+# 2. COURSE-SERVICE
 # ==========================================
 apiVersion: apps/v1
 kind: Deployment
@@ -89,19 +80,12 @@ spec:
     spec:
       containers:
       - name: course-service
-        image: mkhuiii/course-service:latest
-        imagePullPolicy: IfNotPresent
+        image: DOCKER_USER/course_service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8001
         env:
-        - name: PORT
-          value: "8001"
-        - name: COURSES_DB_URL
-          value: "postgresql://postgres:abc123@postgres:5432/course_db"
-        - name: FRONTEND_HOST
-          value: "http://localhost:30080"
-        - name: STORAGE_API_URL
-          value: "http://storage-service:8000"
+        # URL gọi giữa các service (nội bộ k8s: tên Service + port trong container)
         - name: BACKEND_USER_URL
           value: "http://user-service:8000"
         - name: BACKEND_COURSE_URL
@@ -110,16 +94,7 @@ spec:
           value: "http://quiz-exam-service:8002"
         - name: BACKEND_LEARNING_PROGRESS_URL
           value: "http://learning-progress-service:8003"
-        - name: MINIO_ENDPOINT
-          value: "http://minio:9000"
-        - name: MINIO_ACCESS_KEY
-          value: "minioadmin"
-        - name: MINIO_SECRET_KEY
-          value: "minioadmin123"
-        - name: MINIO_BUCKET
-          value: "lumer-media"
-        - name: STORAGE_PUBLIC_URL
-          value: "http://localhost:30900"
+        # Các biến còn lại (DB URL, SECRET_KEY, CORS, FRONTEND_HOST...) lấy từ Secret
         envFrom:
         - secretRef:
             name: backend-secrets
@@ -136,16 +111,17 @@ kind: Service
 metadata:
   name: course-service
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 8001
     targetPort: 8001
+    nodePort: 30001
   selector:
     app: course-service
 
 ---
 # ==========================================
-# 3. QUIZ EXAM SERVICE
+# 3. QUIZ-EXAM-SERVICE
 # ==========================================
 apiVersion: apps/v1
 kind: Deployment
@@ -165,19 +141,12 @@ spec:
     spec:
       containers:
       - name: quiz-exam-service
-        image: mkhuiii/quiz-exam-service:latest
-        imagePullPolicy: IfNotPresent
+        image: DOCKER_USER/quiz_exam_service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8002
         env:
-        - name: PORT
-          value: "8002"
-        - name: QUIZS_DB_URL
-          value: "postgresql://postgres:abc123@postgres:5432/quiz_exam_db"
-        - name: FRONTEND_HOST
-          value: "http://localhost:30080"
-        - name: STORAGE_API_URL
-          value: "http://storage-service:8000"
+        # URL gọi giữa các service (nội bộ k8s: tên Service + port trong container)
         - name: BACKEND_USER_URL
           value: "http://user-service:8000"
         - name: BACKEND_COURSE_URL
@@ -186,6 +155,7 @@ spec:
           value: "http://quiz-exam-service:8002"
         - name: BACKEND_LEARNING_PROGRESS_URL
           value: "http://learning-progress-service:8003"
+        # Các biến còn lại (DB URL, SECRET_KEY, CORS, FRONTEND_HOST...) lấy từ Secret
         envFrom:
         - secretRef:
             name: backend-secrets
@@ -202,16 +172,17 @@ kind: Service
 metadata:
   name: quiz-exam-service
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 8002
     targetPort: 8002
+    nodePort: 30002
   selector:
     app: quiz-exam-service
 
 ---
 # ==========================================
-# 4. LEARNING PROGRESS SERVICE
+# 4. LEARNING-PROGRESS-SERVICE
 # ==========================================
 apiVersion: apps/v1
 kind: Deployment
@@ -231,19 +202,12 @@ spec:
     spec:
       containers:
       - name: learning-progress-service
-        image: mkhuiii/learning-progress-service:latest
-        imagePullPolicy: IfNotPresent
+        image: DOCKER_USER/learning_progress_service:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8003
         env:
-        - name: PORT
-          value: "8003"
-        - name: LEARNING_PROGRESS_DB_URL
-          value: "postgresql://postgres:abc123@postgres:5432/learning_progress_db"
-        - name: FRONTEND_HOST
-          value: "http://localhost:30080"
-        - name: STORAGE_API_URL
-          value: "http://storage-service:8000"
+        # URL gọi giữa các service (nội bộ k8s: tên Service + port trong container)
         - name: BACKEND_USER_URL
           value: "http://user-service:8000"
         - name: BACKEND_COURSE_URL
@@ -252,6 +216,7 @@ spec:
           value: "http://quiz-exam-service:8002"
         - name: BACKEND_LEARNING_PROGRESS_URL
           value: "http://learning-progress-service:8003"
+        # Các biến còn lại (DB URL, SECRET_KEY, CORS, FRONTEND_HOST...) lấy từ Secret
         envFrom:
         - secretRef:
             name: backend-secrets
@@ -268,9 +233,10 @@ kind: Service
 metadata:
   name: learning-progress-service
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
   - port: 8003
     targetPort: 8003
+    nodePort: 30003
   selector:
     app: learning-progress-service
