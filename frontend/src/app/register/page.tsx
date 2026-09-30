@@ -9,7 +9,7 @@ import { registerGoogleUserAction } from '@/actions/authUser';
 export default function RegisterPage() {
   const router = useRouter();
 
-  // Quản lý các trạng thái Form thông thường
+  // Quản lý các trạng thái Form thông
   const [formData, setFormData] = useState({
     username: '',
     email: '',
