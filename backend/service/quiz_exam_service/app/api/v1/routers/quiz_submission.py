@@ -83,6 +83,34 @@ def _get_subject_id_for_submission(db: SessionDep, submission_id: UUID) -> UUID:
         )
     return _get_subject_id_for_quiz(db, submission.quiz_id)
 
+# @router.post("/start/{lesson_id}", response_model=QuizTakeResponse)
+# def start_quiz_submission(
+#     lesson_id: UUID,
+#     is_peer_review: bool = False,
+#     db: SessionDep = None,
+#     current_user: dict = Depends(get_current_user_role)
+# ):
+#     quiz = crud_quiz.get_quiz_by_lesson(db, lesson_id)
+#     user_id_str = current_user.get("user_id")
+#     if not user_id_str:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED, 
+#             detail="Không tìm thấy ID người dùng trong token"
+#         )
+    
+#     user_id = UUID(user_id_str)
+
+#     # 1. Lấy thông tin bài thi và kiểm tra trạng thái
+#     quiz = crud_quiz.get_by_id(db, quiz.quiz_id)
+#     if quiz is None:
+#         raise HTTPException(status_code=404, detail="Lesson này chưa có quiz")
+#     if not quiz:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy bài thi")
+    
+#     if not quiz.is_active:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Bài thi hiện đang bị khóa")
+
+
 @router.post("/start/{lesson_id}", response_model=QuizTakeResponse)
 def start_quiz_submission(
     lesson_id: UUID,
@@ -100,18 +128,30 @@ def start_quiz_submission(
     
     user_id = UUID(user_id_str)
 
+    # BƯỚC SỬA LỖI: Kiểm tra quiz có tồn tại từ lesson_id không TRƯỚC KHI truy cập quiz.quiz_id
+    if not quiz:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Lesson này chưa có quiz hoặc quiz không tồn tại."
+        )
+
     # 1. Lấy thông tin bài thi và kiểm tra trạng thái
     quiz = crud_quiz.get_by_id(db, quiz.quiz_id)
-    if quiz is None:
-        raise HTTPException(status_code=404, detail="Lesson này chưa có quiz")
+    
+    # Kiểm tra lại lần nữa phòng trường hợp bản ghi bị xóa bất thường
     if not quiz:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy bài thi")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Không tìm thấy bài thi chi tiết."
+        )
     
     if not quiz.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Bài thi hiện đang bị khóa")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Bài thi hiện đang bị khóa"
+        )
 
-    # 🆕 Câu hỏi chèn giữa video (IN_VIDEO) chỉ hỗ trợ đề thi dạng câu hỏi cố định,
-    # vì cần video_trigger_seconds gắn cứng theo từng câu (pool bốc ngẫu nhiên không có mốc giây).
+
     if quiz.placement_type == QuizPlacementType.IN_VIDEO and quiz.quiz_type != QuizType.FIXED_QUESTION:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

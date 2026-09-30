@@ -18,6 +18,29 @@ from dataclasses import dataclass, field
 import httpx
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+import os
+import jwt  # pip install pyjwt
+from dotenv import load_dotenv
+
+load_dotenv()
+JWT_SECRET = os.environ["SECRET_KEY"]        # cùng giá trị với các service
+JWT_ALG = os.getenv("ALGORITHM", "HS256")
+
+PUBLIC_PREFIXES = ("/login", "/register", "/health")
+
+
+def extract_role(request: Request) -> str | None:
+    """Trả về role_name nếu token hợp lệ, None nếu thiếu/sai/hết hạn."""
+    scheme, _, token = request.headers.get("authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or not token:
+        return None
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+    except jwt.InvalidTokenError:  # gồm cả ExpiredSignatureError
+        return None
+    return payload.get("role_name")
+
+
 
 app = FastAPI(title="API Gateway - WLC + Priority + Waitlist")
 
@@ -273,9 +296,14 @@ async def proxy(full_path: str, request: Request):
 
     # --- Priority: đọc role từ header do client/frontend gửi lên
     #     (thực tế nên lấy từ JWT đã xác thực, ở đây đơn giản hoá bằng header) ---
-    role = request.headers.get("x-user-role", "student")
-    priority = compute_priority(path, role)
-
+    role = extract_role(request)
+    if role is None and not path.startswith(PUBLIC_PREFIXES):
+        return Response(
+            content='{"detail": "Token khong hop le hoac da het han"}',
+            status_code=401,
+            media_type="application/json",
+        )
+    priority = compute_priority(path, role or "anonymous")
     # --- Waitlist: xin 1 slot xử lý, có thể phải CHỜ nếu service đang đầy ---
     waitlist = waitlists[service_name]
     started_waiting = time.monotonic()
