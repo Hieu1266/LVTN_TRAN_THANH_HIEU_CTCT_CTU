@@ -75,7 +75,24 @@ def get_current_user_role(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="Token không hợp lệ"
         )
+
+
+def verify_active_session(
+    session: SessionDep,
+    current_user: dict = Depends(get_current_user_role)
+):
+    user_id = current_user["user_id"]
+    user = crud_user.get_by_id(session, user_id=user_id)
     
+    # Kiểm tra nếu tài khoản không tồn tại hoặc đã đăng xuất/bị đá ra
+    if not user or not user.is_logged_in:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Phiên làm việc đã hết hạn hoặc bạn đã bị đăng xuất ở thiết bị khác"
+        )
+    
+    return current_user
+
 import requests
 from typing import Optional
 from app.core.config import settings

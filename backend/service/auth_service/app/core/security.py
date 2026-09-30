@@ -69,7 +69,7 @@ def get_current_user_role(
 
 def verify_active_session(
     session: SessionDep,
-    current_user: dict = Depends(get_current_user_role) # Gọi hàm 1 để lấy user_id trước
+    current_user: dict = Depends(get_current_user_role)
 ):
     user_id = current_user["user_id"]
     user = crud_user.get_by_id(session, user_id=user_id)
@@ -82,6 +82,7 @@ def verify_active_session(
         )
     
     return current_user
+
 class RoleChecker:
     def __init__(self, allowed_roles: list[str]):
         # Khởi tạo danh sách các Role được phép truy cập API này
