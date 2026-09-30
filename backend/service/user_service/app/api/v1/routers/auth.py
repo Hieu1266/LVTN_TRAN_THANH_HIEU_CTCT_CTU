@@ -4,7 +4,7 @@ from app.api.v1.deps import SessionDep
 from app.crud.user import crud_user
 from app.schemas.user import UserCreate
 from app.core.config import settings
-from app.core.security import create_access_token, verify_password, hash_password, verify_active_session
+from app.core.security import create_access_token, verify_password, hash_password
 from app.crud.role import crud_role
 
 router = APIRouter()
@@ -50,7 +50,7 @@ def login(
     existing_user.is_logged_in = True
     session.add(existing_user)
     session.commit()
-    
+
     role_name = crud_role.get_name_by_id(session, existing_user.role_id) or "User"
     token_data = {
         "sub": str(existing_user.user_id),
