@@ -269,7 +269,7 @@ def logout(response: Response):
     # 2. Xóa các cookie phụ khác (nếu có set từ backend)
     response.delete_cookie(key="user_info", path="/")
     response.delete_cookie(key="user_role", path="/")
-
+    
     return {"message": "Đăng xuất thành công!"}
 
 

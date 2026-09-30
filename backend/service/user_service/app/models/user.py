@@ -20,3 +20,4 @@ class User(SQLModel, table=True):
         nullable=False, 
         default=UserStatus.ACTIVE.value
     )
+    is_logged_in: bool = Field(default=False, nullable=False)
