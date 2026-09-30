@@ -54,7 +54,7 @@ def get_current_user_role(
             )
             
         return {"user_id": user_id, "role_name": role_name}
-
+        
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
@@ -65,24 +65,7 @@ def get_current_user_role(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="Token không hợp lệ"
         )
-
-
-def verify_active_session(
-    session: SessionDep,
-    current_user: dict = Depends(get_current_user_role)
-):
-    user_id = current_user["user_id"]
-    user = crud_user.get_by_id(session, user_id=user_id)
     
-    # Kiểm tra nếu tài khoản không tồn tại hoặc đã đăng xuất/bị đá ra
-    if not user or not user.is_logged_in:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Phiên làm việc đã hết hạn hoặc bạn đã bị đăng xuất ở thiết bị khác"
-        )
-    
-    return current_user
-
 class RoleChecker:
     def __init__(self, allowed_roles: list[str]):
         # Khởi tạo danh sách các Role được phép truy cập API này
@@ -95,6 +78,4 @@ class RoleChecker:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Quyền truy cập bị từ chối! Bạn cần quyền: {', '.join(self.allowed_roles)}"
             )
-        if self.check_active_session:
-            verify_active_session(session=session, current_user=current_user)
         return current_user

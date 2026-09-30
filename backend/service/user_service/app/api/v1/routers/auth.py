@@ -38,19 +38,9 @@ def login(
     if not existing_user or not verify_password(user.password, existing_user.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Mật khẩu sai hoặc người dùng không tồn tại hoặc tài khoản đã được đăng nhập"
+            detail="Mật khẩu sai hoặc người dùng không tồn tại"
         )
-    
-    if existing_user.is_logged_in:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tài khoản đang được đăng nhập ở nơi khác. Vui lòng đăng xuất trước."
-        )
-    
-    existing_user.is_logged_in = True
-    session.add(existing_user)
-    session.commit()
-
+        
     role_name = crud_role.get_name_by_id(session, existing_user.role_id) or "User"
     token_data = {
         "sub": str(existing_user.user_id),
@@ -58,8 +48,6 @@ def login(
         "role_name": role_name
     }
     access_token = create_access_token(token_data)
-    
-
     return{
         "message": "Đăng nhập thành công",
         "access_token": access_token,

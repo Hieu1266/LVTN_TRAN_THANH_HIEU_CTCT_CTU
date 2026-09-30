@@ -248,32 +248,22 @@ def get_instructor_list(
 
     return user_info_list
 
-@router.get("/users/get-name/{user_idz}")
+@router.get("/users/get-name/{user_id}")
 def get_name_by_id(
     db: SessionDep,
     user_id: UUID
 ):
     return crud_user.get_name_by_id(db, user_id)
 
-
 @router.post("/users/logout")
-def logout(
-    response: Response,
-    session: SessionDep,
-    current_user: dict = Depends(get_current_user_role) # 1. Lấy user từ Token
-):
-    user = crud_user.get_by_id(session, user_id=current_user["user_id"])
-    if user:
-        user.is_logged_in = False
-        session.add(user)
-        session.commit()
-    
+def logout(response: Response):
+    # 1. Xóa cookie token (HttpOnly)
     response.delete_cookie(
         key="token",
         path="/",
         httponly=True,
         samesite="lax",  # Hoặc "none" nếu Frontend & Backend khác Domain/HTTPS
-        secure=False,    # Đổi thành True nếu hệ thống chạy trên HTTPS
+        secure=False     # Đổi thành True nếu hệ thống chạy trên HTTPS
     )
     
     # 2. Xóa các cookie phụ khác (nếu có set từ backend)
