@@ -7,7 +7,7 @@ from app.models.certificate import Certificate
 from app.schemas.certificate import CertificateCreate
 from app.schemas.course_enrollment import CourseEnrollmentCreate, CourseEnrollmentUpdate
 from app.crud.certificate import crud_certificate
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 import httpx
 from app.core.config import settings
 from app.models.lesson_progress import LessonProgress

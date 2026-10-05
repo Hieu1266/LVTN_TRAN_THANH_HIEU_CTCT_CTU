@@ -3,7 +3,7 @@ from pydantic import EmailStr
 from typing import Optional
 from uuid import UUID
 import uuid
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from app.models.status_catalog import UserStatus
 
 class User(SQLModel, table=True):

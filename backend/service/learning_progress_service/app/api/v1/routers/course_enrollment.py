@@ -23,7 +23,7 @@ from app.schemas.comment import CommentCreate
 from app.crud.comment import crud_comment
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
 router = APIRouter(prefix="/course_enrollment", tags=["course_enrollment"])
 

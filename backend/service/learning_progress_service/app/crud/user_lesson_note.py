@@ -1,12 +1,13 @@
 from sqlmodel import Session, select, delete, col
 from typing import Optional, List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 from app.crud.base import CRUDBase
 from app.schemas.user_lesson_note import NoteUpdate, NoteCreate
 from app.models.user_lesson_note import UserLessonNote
 from app.models.lesson_progress import LessonProgress
 from uuid import UUID
-from datetime import datetime, timezone
+
+
 class CRUDNote(CRUDBase[UserLessonNote, NoteCreate, NoteUpdate, UUID]):
     def delete_note_by_user(
         self, db: Session, note_id: UUID, user_id: UUID

@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, model_validator
 from pydantic_core import PydanticCustomError
 from typing import Self
 from uuid import UUID
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 class TokenBody(BaseModel):
     token: str

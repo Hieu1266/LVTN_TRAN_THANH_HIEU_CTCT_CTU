@@ -1,5 +1,5 @@
 from sqlmodel import Session, select
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 from uuid import UUID
 from app.crud.base import CRUDBase
 from app.models.lesson_progress import LessonProgress
@@ -7,7 +7,7 @@ from app.schemas.lesson_progress import LessonProgressCreate, LessonProgressUpda
 from app.models.enum import LessonStatus
 from app.core.config import settings
 import httpx
-from datetime import datetime, timezone
+
 
 
 class CRUDLessonProgress(CRUDBase[LessonProgress, LessonProgressCreate, LessonProgressUpdate, UUID]):

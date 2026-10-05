@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, EmailStr
 from uuid import UUID
 from typing import List, Optional
 from app.models.enum import SubmissionStatus , QuestionType, QuizType
-from datetime import datetime
+from datetime import datetime, timezone
 from app.schemas.submission_detail import QuestionGradeInput
 
 class QuizSubmissionCreate(BaseModel):

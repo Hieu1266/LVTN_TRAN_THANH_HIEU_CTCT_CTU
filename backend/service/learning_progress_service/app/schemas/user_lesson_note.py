@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone, date
 from pydantic import BaseModel, Field
 
 # 1. Schema dữ liệu Client gửi lên khi tạo Note

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone, date
 from typing import Optional
 
 class CertificateCreate(BaseModel):

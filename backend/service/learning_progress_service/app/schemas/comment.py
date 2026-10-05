@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone, date
 from typing import Optional
 from app.models.enum import StructurePart, CommentStatus
 

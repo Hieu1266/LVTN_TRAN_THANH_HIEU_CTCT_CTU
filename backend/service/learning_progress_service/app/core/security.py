@@ -2,7 +2,7 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, Depends, status
 import jwt
 import bcrypt
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 from app.core.config import settings
 import httpx
 from uuid import UUID

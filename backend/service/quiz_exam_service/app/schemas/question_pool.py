@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional, List
-from datetime import date
+from datetime import date, timezone
 
 class QuestionPoolBase(BaseModel):
     subject_id: UUID  # 🆕 Bổ sung theo yêu cầu: 1 pool thuộc về 1 subject cụ thể (không dùng chung mọi môn)

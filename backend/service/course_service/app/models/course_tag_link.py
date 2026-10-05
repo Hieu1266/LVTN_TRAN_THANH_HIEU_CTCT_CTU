@@ -1,6 +1,6 @@
 import uuid
 from uuid import UUID
-from datetime import date
+from datetime import date, timezone
 from typing import Optional, List  
 from sqlmodel import Field, SQLModel, Relationship
 from app.models.curriculum import CourseType 

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from uuid import UUID
 from typing import Optional, List
-from datetime import date
+from datetime import datetime, timezone, date
 from app.schemas.lesson_resource import LessonResourceResponse
 from app.schemas.enums import SubmissionStatus
 from enum import Enum

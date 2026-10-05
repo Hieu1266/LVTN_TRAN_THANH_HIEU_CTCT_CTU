@@ -1,6 +1,6 @@
 import uuid
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, date, timezone
 from typing import TYPE_CHECKING, List, Optional
 from sqlmodel import Field, Relationship, SQLModel
 

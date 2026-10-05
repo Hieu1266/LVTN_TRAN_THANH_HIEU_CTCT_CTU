@@ -1,9 +1,8 @@
 import uuid
 from uuid import UUID
 from typing import Optional
-from datetime import datetime
 from sqlmodel import Field, SQLModel
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
 
 class UserLessonNote(SQLModel, table=True):

@@ -3,7 +3,7 @@ from fastapi import HTTPException, Depends, status
 from typing import Optional, Any
 import jwt
 import bcrypt
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, date
 from app.core.config import settings
 from jose import jwt, JWTError
 from google.oauth2 import id_token

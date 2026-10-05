@@ -4,7 +4,7 @@ from app.models.curriculum import CourseType
 from app.models.course_tag_link import CourseTagLink
 from app.schemas.enums import CourseStatus
 from uuid import UUID
-from datetime import date
+from datetime import datetime, timezone, date
 import uuid
 from sqlalchemy import Enum
 

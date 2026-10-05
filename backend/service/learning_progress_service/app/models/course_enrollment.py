@@ -1,10 +1,9 @@
 import uuid
 from uuid import UUID
-from datetime import datetime
 from typing import Optional, TYPE_CHECKING, List
 from sqlmodel import Field, SQLModel, Relationship
 from app.models.enum import TestingEnrollment
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 if TYPE_CHECKING:
     from app.models.certificate import Certificate
     from app.models.comment import Comment

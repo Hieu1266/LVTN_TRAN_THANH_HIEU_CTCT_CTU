@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, EmailStr
 from uuid import UUID
 from typing import List, Optional, Any
 from app.models.enum import QuestionType, SubmissionStatus
-from datetime import datetime
+from datetime import datetime, timezone
 
 class SubmissionDetailCreate(BaseModel):
     submission_id: UUID

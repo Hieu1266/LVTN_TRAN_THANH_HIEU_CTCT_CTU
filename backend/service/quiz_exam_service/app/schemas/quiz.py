@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from uuid import UUID
 from app.models.enum import QuizPlacementType, QuizType
-from datetime import date
+from datetime import date, timezone
 from app.schemas.question import QuestionItem, QuestionDisplay
 from typing import List
 

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from uuid import UUID
-from datetime import date
+from datetime import date, timezone
 
 class ProfileUpdate(BaseModel):
     firstname: str | None = None

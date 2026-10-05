@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, timezone, date
 from typing import Optional, List
 from uuid import UUID
 from app.schemas.enums import CourseType
