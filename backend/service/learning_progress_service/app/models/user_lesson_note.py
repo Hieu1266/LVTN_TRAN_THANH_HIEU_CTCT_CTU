@@ -3,6 +3,8 @@ from uuid import UUID
 from typing import Optional
 from datetime import datetime
 from sqlmodel import Field, SQLModel
+from datetime import datetime, timezone
+
 
 class UserLessonNote(SQLModel, table=True):
     __tablename__ = "user_lesson_note"
@@ -15,5 +17,5 @@ class UserLessonNote(SQLModel, table=True):
     timestamp_seconds: Optional[int] = Field(nullable=True)          # Mốc thời gian của dòng video khi học viên bấm tạo ghi chú
     content: str = Field(nullable=False)                    # Nội dung văn bản ghi chú của học viên
     
-    created_at: datetime = Field(default_factory=datetime.utcnow)    # Ngày tạo bản ghi chú
-    updated_at: datetime = Field(default_factory=datetime.utcnow)    # Ngày chỉnh sửa ghi chú gần nhất
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))   # Ngày tạo bản ghi chú
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))   # Ngày chỉnh sửa ghi chú gần nhất

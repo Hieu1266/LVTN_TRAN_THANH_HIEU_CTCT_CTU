@@ -23,7 +23,7 @@ from app.schemas.comment import CommentCreate
 from app.crud.comment import crud_comment
 from pydantic import BaseModel
 from typing import Optional
-
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/course_enrollment", tags=["course_enrollment"])
 
@@ -62,29 +62,52 @@ async def enroll_course(
         except httpx.RequestError:
             raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Course Service sập.")
 
-    # Chuẩn hóa dữ liệu: Map `is_quiz` sang `has_quiz` để tương thích với logic CRUD hiện tại
+    # Chuẩn hóa dữ liệu: Map `is_quiz` sang `has_quiz`
     for lesson in lessons_list:
         if "has_quiz" not in lesson:
             lesson["has_quiz"] = lesson.get("is_quiz", False)
 
-    # Bước 3: Tạo bản ghi Đăng ký học chính thức
-    enroll = crud_course_enrollment.create(db, {"user_id": user_id, "course_id": course_id, "is_tested": False})
-    
-    # Bước 4: Khởi tạo tiến độ bài học & tiến độ video
-    if lessons_list:
-        # 4.1. Khởi tạo tiến độ chung cho tất cả các bài học
-        crud_lesson_progress.init_course_progress(
-            db=db, user_id=user_id, course_id=course_id, lessons=lessons_list, is_tested=False
+    # --------------------------------------------------------------------------
+    # BỌC TRANSACTION: Đảm bảo Bước 3 và Bước 4 cùng thành công hoặc cùng hủy
+    # --------------------------------------------------------------------------
+    try:
+        # Bước 3: Tạo bản ghi Đăng ký học (ép dùng timezone UTC để tránh lỗi SQLModel)
+        enroll = crud_course_enrollment.create(
+            db, 
+            {
+                "user_id": user_id, 
+                "course_id": course_id, 
+                "is_tested": False,
+                "enrolled_at": datetime.now(timezone.utc) # 👈 Thêm timezone UTC an toàn
+            }
         )
         
-        # 4.2. Lọc các bài học có video (duration_seconds > 0) để khởi tạo video progress
-        video_lessons = [l for l in lessons_list if l.get("duration_seconds", 0) > 0]
-        if video_lessons:
-            crud_video_progress.init_video_progress(
-                db=db, user_id=user_id, lessons=video_lessons, is_tested=False
+        # Bước 4: Khởi tạo tiến độ bài học & tiến độ video
+        if lessons_list:
+            # 4.1. Khởi tạo tiến độ chung cho tất cả các bài học
+            crud_lesson_progress.init_course_progress(
+                db=db, user_id=user_id, course_id=course_id, lessons=lessons_list, is_tested=False
             )
+            
+            # 4.2. Lọc các bài học có video
+            video_lessons = [l for l in lessons_list if l.get("duration_seconds", 0) > 0]
+            if video_lessons:
+                crud_video_progress.init_video_progress(
+                    db=db, user_id=user_id, lessons=video_lessons, is_tested=False
+                )
         
-    return enroll
+        # Chỉ khi CẢ 2 BƯỚC trên chạy không lỗi mới chốt lưu vào DB
+        db.commit()
+        db.refresh(enroll)
+        return enroll
+
+    except Exception as e:
+        # 💥 Nếu Bước 4 bị sập, câu lệnh này sẽ XÓA SẠCH Bước 3 khỏi DB lập tức!
+        db.rollback() 
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Lỗi khởi tạo tiến độ học: {str(e)}"
+        )
 
 @router.post("/create-testing-enrollment/{tester_id}")
 async def create_testing_enrollment(

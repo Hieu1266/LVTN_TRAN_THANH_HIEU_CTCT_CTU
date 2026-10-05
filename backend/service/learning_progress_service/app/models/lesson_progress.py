@@ -20,4 +20,4 @@ class LessonProgress(SQLModel, table=True):
     highest_quiz_score: Optional[float] = Field(default=None) # Điểm số bài kiểm tra cao nhất từng đạt được
     successful_submission_id: Optional[UUID] = Field(default=None) # Lượt nộp bài kiểm tra đạt điều kiện vượt qua bài học
     
-    updated_at: datetime = Field(default_factory=datetime.utcnow)   # Ngày cuối cùng cập nhật tiến độ bài học
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))   # Ngày cuối cùng cập nhật tiến độ bài học

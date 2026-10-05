@@ -7,6 +7,8 @@ from app.schemas.lesson_progress import LessonProgressCreate, LessonProgressUpda
 from app.models.enum import LessonStatus
 from app.core.config import settings
 import httpx
+from datetime import datetime, timezone
+
 
 class CRUDLessonProgress(CRUDBase[LessonProgress, LessonProgressCreate, LessonProgressUpdate, UUID]):
     def get_by_id(self, db: Session, progress_id: UUID) -> LessonProgress:
