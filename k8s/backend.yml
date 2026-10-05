@@ -184,6 +184,7 @@ spec:
 # ==========================================
 # 4. LEARNING-PROGRESS-SERVICE
 # ==========================================
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -240,3 +241,77 @@ spec:
     nodePort: 30003
   selector:
     app: learning-progress-service
+
+
+---
+# ==========================================
+# 5. API GATEWAY 
+# ==========================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-config
+data:
+  ALGORITHM: "HS256"
+  USER_SERVICE_URL: "http://user-service:8000"
+  COURSE_SERVICE_URL: "http://course-service:8001"
+  QUIZ_SERVICE_URL: "http://quiz-exam-service:8002"
+  LEARNING_PROGRESS_SERVICE_URL: "http://learning-progress-service:8003"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: DOCKER_USER/api_gateway:latest
+          ports:
+            - containerPort: 8088
+          envFrom:
+            - configMapRef:
+                name: gateway-config
+            - secretRef:
+                name: gateway-secrets
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8088
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8088
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+            limits:
+              cpu: "1"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  type: LoadBalancer
+  selector:
+    app: api-gateway
+  ports:
+  - port: 8088
+    targetPort: 8088
+    nodePort: 30088
