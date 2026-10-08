@@ -25,10 +25,11 @@ CONFIG_SERVICE_URL = os.getenv("CONFIG_SERVICE_URL", "http://127.0.0.1:8005")
 POLL_INTERVAL_SECONDS = 10  # 10s cho dev để thấy đổi ngay, sau này deploy thật thì tăng lên 30-60s
 
 
-def fetch_remote_env_text() -> str | None:  
+def fetch_remote_env_text() -> str | None:
     try:
         resp = httpx.get(
             f"{CONFIG_SERVICE_URL}/config/{SERVICE_NAME}/export",
+            headers={"X-Service-Token": os.getenv("CONFIG_SERVICE_TOKEN", "")},
             timeout=5,
         )
         resp.raise_for_status()
@@ -50,15 +51,39 @@ def write_local_env_text(content: str) -> None:
         f.write(content)
 
 
+def merge_env(local_text: str, remote_text: str) -> str:
+    """Chỉ cập nhật/thêm các khóa runtime mà config_service trả về.
+    Giữ nguyên mọi dòng khác (secret, DB URL, comment) của .env local —
+    bản cũ ghi đè cả file nên sẽ xoá mất secret khi config_service không còn xuất secret."""
+    remote: dict[str, str] = {}
+    for line in remote_text.splitlines():
+        if "=" in line and not line.lstrip().startswith("#"):
+            k, v = line.split("=", 1)
+            remote[k.strip()] = v
+
+    out, seen = [], set()
+    for line in local_text.splitlines():
+        if "=" in line and not line.lstrip().startswith("#"):
+            k = line.split("=", 1)[0].strip()
+            if k in remote:
+                out.append(f"{k}={remote[k]}")
+                seen.add(k)
+                continue
+        out.append(line)
+    out += [f"{k}={v}" for k, v in remote.items() if k not in seen]
+    return "\n".join(out).rstrip("\n") + "\n"
+
+
 def sync_once() -> None:
     remote_text = fetch_remote_env_text()
     if remote_text is None:
         return  # config_service đang tắt hoặc lỗi mạng, bỏ qua lần này
 
     local_text = read_local_env_text()
+    merged = merge_env(local_text, remote_text)
 
-    if remote_text.strip() != local_text.strip():
-        write_local_env_text(remote_text)
+    if merged.strip() != local_text.strip():
+        write_local_env_text(merged)
         print(f"[sync_env] Đã cập nhật .env cho '{SERVICE_NAME}' — uvicorn sẽ tự reload nếu chạy với --reload-include \".env\"")
     else:
         print(f"[sync_env] Config '{SERVICE_NAME}' không đổi.")

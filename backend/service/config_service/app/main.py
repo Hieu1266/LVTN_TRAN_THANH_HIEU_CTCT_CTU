@@ -1,14 +1,26 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import router as api_router
+from app.core.db import engine
+from app.models.service_config import Base
 
-app = FastAPI(title="Config Service")
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-app.include_router(api_router) 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(engine)  # bản cũ không tạo bảng ở đâu cả
+    yield
+
+
+# Không còn CORS "*": trình duyệt không gọi thẳng config_service nữa,
+# chỉ route handler phía server của Next.js (và sync_env.py) gọi.
+app = FastAPI(title="Config Service", lifespan=lifespan)
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+app.include_router(api_router)

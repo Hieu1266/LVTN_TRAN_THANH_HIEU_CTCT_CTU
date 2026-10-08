@@ -4,6 +4,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import {
+  getServiceConfigAction,
+  saveServiceConfigAction,
+  type ConfigMap,
+  type SaveResult,
+} from "@/actions/serviceConfig";
+import {
   ArrowLeft,
   Server,
   Monitor,
@@ -18,17 +24,13 @@ import {
   Trash2,
   Circle,
   Key,
+  Lock,
+  Package,
 } from "lucide-react";
 
 // ============================================
 // CẤU HÌNH KẾT NỐI TỚI config_service
 // ============================================
-const CONFIG_API_BASE =
-  process.env.NEXT_PUBLIC_CONFIG_SERVICE_URL || "http://localhost:8005";
-
-const CONFIG_ADMIN_KEY =
-  process.env.NEXT_PUBLIC_CONFIG_ADMIN_KEY || "change-me-please";
-  
 const BACKEND_SERVICES = [
   { id: "user_service", label: "user_service" },
   { id: "course_service", label: "course_service" },
@@ -38,45 +40,43 @@ const BACKEND_SERVICES = [
 
 const FRONTEND_SERVICE_ID = "frontend";
 
-const SECRET_KEY_HINTS = ["SECRET", "PASSWORD", "TOKEN"];
-const isSecretField = (key: string) =>
-  SECRET_KEY_HINTS.some((hint) => key.toUpperCase().includes(hint));
+// PHẢI khớp với config_service/app/core/keys.py
+//  secret : K8s Secret / GitHub Secrets quản lý → chỉ xem (đã che), không sửa ở đây
+//  build  : NEXT_PUBLIC_* nhúng lúc build → đổi phải build lại image
+//  runtime: lưu ở config_service → ghi ConfigMap → restart Deployment
+type KeyKind = "runtime" | "secret" | "build";
+const SECRET_HINTS = [
+  "SECRET", "PASSWORD", "TOKEN", "PRIVATE", "API_KEY", "ADMIN_KEY", "_DB_URL", "DATABASE_URL",
+];
+const RUNTIME_SUFFIXES = ["_EXPIRE_DAYS", "_EXPIRE_MINUTES", "_EXPIRE_SECONDS"];
+const classifyKey = (key: string): KeyKind => {
+  const k = key.toUpperCase();
+  if (RUNTIME_SUFFIXES.some((s) => k.endsWith(s))) return "runtime";
+  if (SECRET_HINTS.some((h) => k.includes(h))) return "secret";
+  if (k.startsWith("NEXT_PUBLIC_")) return "build";
+  return "runtime";
+};
+const isSecretField = (key: string) => classifyKey(key) === "secret";
 
-type ConfigMap = Record<string, string>;
 type ViewState = "HOME" | "FRONTEND" | "BACKEND";
 
 // ============================================
 // GỌI API
 // ============================================
 async function fetchServiceConfig(serviceName: string): Promise<ConfigMap> {
-  const res = await fetch(`${CONFIG_API_BASE}/config/${serviceName}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    throw new Error(`Không lấy được config của "${serviceName}" (HTTP ${res.status})`);
-  }
-  const data = await res.json();
-  return data.config as ConfigMap;
+  const r = await getServiceConfigAction(serviceName);
+  if (!r.ok) throw new Error(r.message);
+  return r.data;
 }
 
 async function saveServiceConfig(
   serviceName: string,
   config: ConfigMap,
-): Promise<ConfigMap> {
-  const res = await fetch(`${CONFIG_API_BASE}/config/${serviceName}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Admin-Key": CONFIG_ADMIN_KEY,
-    },
-    body: JSON.stringify({ config }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || `Lưu thất bại (HTTP ${res.status})`);
-  }
-  const data = await res.json();
-  return data.config as ConfigMap;
+  restart: boolean,
+): Promise<SaveResult> {
+  const r = await saveServiceConfigAction(serviceName, config, restart);
+  if (!r.ok) throw new Error(r.message);
+  return r.data;
 }
 
 export default function ConfigPage() {
@@ -92,6 +92,8 @@ export default function ConfigPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<ConfigMap>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [restartAfterSave, setRestartAfterSave] = useState(true);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
@@ -123,7 +125,13 @@ export default function ConfigPage() {
   }, [view, activeBackendTab, loadConfig]);
 
   const openEditModal = () => {
-    setFormData(configCache[currentServiceId] || {});
+    setFormData(
+      Object.fromEntries(
+        Object.entries(configCache[currentServiceId] || {}).filter(
+          ([k]) => classifyKey(k) === "runtime",
+        ),
+      ),
+    );
     setNewKey("");
     setNewValue("");
     setAddFieldError(null);
@@ -148,6 +156,15 @@ export default function ConfigPage() {
       setAddFieldError("Tên biến không được để trống.");
       return;
     }
+    const kind = classifyKey(key);
+    if (kind !== "runtime") {
+      setAddFieldError(
+        kind === "secret"
+          ? `"${key}" là secret — đặt trong K8s Secret / GitHub Secrets, không thêm ở đây.`
+          : `"${key}" là biến build-time (NEXT_PUBLIC_*) — phải build lại image.`,
+      );
+      return;
+    }
     if (formData.hasOwnProperty(key)) {
       setAddFieldError(`Biến "${key}" đã tồn tại.`);
       return;
@@ -170,9 +187,16 @@ export default function ConfigPage() {
     setIsSaving(true);
     setErrorMsg(null);
     try {
-      const saved = await saveServiceConfig(currentServiceId, formData);
-      setConfigCache((prev) => ({ ...prev, [currentServiceId]: saved }));
+      const res = await saveServiceConfig(currentServiceId, formData, restartAfterSave);
+      setConfigCache((prev) => ({ ...prev, [currentServiceId]: res.config }));
       setIsEditing(false);
+      setNotice(
+        res.applied === "k8s"
+          ? res.restarted
+            ? "Đã ghi ConfigMap và khởi động lại Deployment — vài chục giây nữa cấu hình mới có hiệu lực."
+            : "Đã ghi ConfigMap. Cấu hình mới có hiệu lực ở lần khởi động Pod tiếp theo."
+          : "Đã lưu vào config_service. Hệ thống chưa chạy trong Kubernetes nên chưa có Pod nào được cập nhật.",
+      );
     } catch (e: any) {
       setErrorMsg(e.message || "Lưu thất bại.");
     } finally {
@@ -187,18 +211,18 @@ export default function ConfigPage() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mt-8">
       <HomeFileTile
         icon={<Monitor size={24} />}
-        filename=".env.local"
+        filename="frontend-config"
         title="Frontend Configuration"
         description="Biến môi trường Client-side (Next.js)."
-        previewLines={["NEXT_PUBLIC_API_URL", "NEXT_PUBLIC_CONFIG_ADMIN_KEY"]}
+        previewLines={["BACKEND_CORS_ORIGINS", "STORAGE_API_URL"]}
         onOpen={() => setView("FRONTEND")}
       />
       <HomeFileTile
         icon={<Server size={24} />}
-        filename="services/*.env"
+        filename="<service>-config"
         title="Backend Configuration"
         description="Quản lý cấu hình 4 Microservices (User, Course, Progress, Quiz)."
-        previewLines={["DATABASE_URL", "JWT_SECRET", "PORT"]}
+        previewLines={["BACKEND_CORS_ORIGINS", "ACCESS_TOKEN_EXPIRE_DAYS"]}
         onOpen={() => setView("BACKEND")}
       />
     </div>
@@ -276,6 +300,16 @@ export default function ConfigPage() {
                   ? "•".repeat(Math.min(value.length, 32))
                   : value || <span className="text-slate-500 italic">""</span>}
               </span>
+              {classifyKey(key) === "secret" && (
+                <span className="shrink-0 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-amber-300/80 bg-amber-500/10 border border-amber-500/20 rounded-md px-2 py-0.5 font-sans">
+                  <Lock size={10} /> K8s Secret
+                </span>
+              )}
+              {classifyKey(key) === "build" && (
+                <span className="shrink-0 inline-flex items-center gap-1 text-[10px] uppercase tracking-wide text-sky-300/80 bg-sky-500/10 border border-sky-500/20 rounded-md px-2 py-0.5 font-sans">
+                  <Package size={10} /> Build-time
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -288,7 +322,7 @@ export default function ConfigPage() {
   // ==========================================
   const renderFrontend = () => (
     <EditorPanel
-      breadcrumb={["frontend", ".env.local"]}
+      breadcrumb={["frontend", "frontend-config"]}
       onBack={() => setView("HOME")}
       onEdit={openEditModal}
       onRefresh={() => loadConfig(FRONTEND_SERVICE_ID, true)}
@@ -302,7 +336,7 @@ export default function ConfigPage() {
   // ==========================================
   const renderBackend = () => (
     <EditorPanel
-      breadcrumb={["backend", "services", `${activeBackendTab}.env`]}
+      breadcrumb={["backend", "services", `${activeBackendTab}-config`]}
       onBack={() => setView("HOME")}
       onEdit={openEditModal}
       onRefresh={() => loadConfig(activeBackendTab, true)}
@@ -326,7 +360,7 @@ export default function ConfigPage() {
                     : "fill-slate-600 text-slate-600"
                 }
               />
-              {svc.label}.env
+              {svc.label}
             </button>
           ))}
         </div>
@@ -390,6 +424,14 @@ export default function ConfigPage() {
             <AlertTriangle size={18} className="shrink-0 text-red-500" /> {errorMsg}
           </div>
         )}
+        {notice && (
+          <div className="max-w-4xl mx-auto mb-6 flex items-start justify-between gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold px-5 py-4 rounded-xl shadow-sm">
+            <span>{notice}</span>
+            <button onClick={() => setNotice(null)} className="shrink-0 text-emerald-600 hover:text-emerald-800">
+              <X size={16} />
+            </button>
+          </div>
+        )}
         {view === "HOME" && renderHome()}
         {view === "FRONTEND" && renderFrontend()}
         {view === "BACKEND" && renderBackend()}
@@ -417,8 +459,8 @@ export default function ConfigPage() {
                 <span className="w-px h-4 bg-slate-700 mx-1"></span>
                 <Edit2 size={16} className="text-blue-400" />
                 {view === "FRONTEND"
-                  ? "frontend / .env.local"
-                  : `services / ${activeBackendTab}.env`}
+                  ? "frontend / frontend-config"
+                  : `services / ${activeBackendTab}-config`}
               </h3>
               <button
                 onClick={() => setIsEditing(false)}
@@ -430,6 +472,10 @@ export default function ConfigPage() {
 
             {/* Body */}
             <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-6 space-y-4">
+              <p className="text-xs font-sans text-slate-500 leading-relaxed">
+                Chỉ sửa được biến <b className="text-slate-300">runtime</b>. Secret (DB URL, SECRET_KEY…)
+                đặt trong GitHub Secrets / K8s Secret; biến <code>NEXT_PUBLIC_*</code> phải build lại image.
+              </p>
               {Object.keys(formData).length === 0 && (
                 <div className="text-center py-10">
                   <p className="text-sm font-mono text-slate-500">
@@ -508,7 +554,16 @@ export default function ConfigPage() {
             </form>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-slate-800 flex justify-end gap-3 bg-slate-950">
+            <div className="px-6 py-4 border-t border-slate-800 flex items-center justify-end gap-3 bg-slate-950">
+              <label className="mr-auto flex items-center gap-2 text-xs font-mono text-slate-400 select-none cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={restartAfterSave}
+                  onChange={(e) => setRestartAfterSave(e.target.checked)}
+                  className="accent-blue-500"
+                />
+                Khởi động lại service để áp dụng ngay
+              </label>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}

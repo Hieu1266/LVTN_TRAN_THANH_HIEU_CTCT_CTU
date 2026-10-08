@@ -1,5 +1,9 @@
 fastapi
 uvicorn[standard]
 sqlalchemy>=2.0
+sqlmodel
 psycopg2-binary
 pydantic
+pydantic-settings
+pyjwt
+kubernetes

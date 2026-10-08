@@ -1,0 +1,92 @@
+# config_service: lưu cấu hình runtime vào DB, ghi ra ConfigMap và restart Deployment.
+# Chỉ có quyền tối thiểu: ConfigMap + patch Deployment, trong đúng namespace này.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: config-service
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: config-service
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "update", "patch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: config-service
+subjects:
+  - kind: ServiceAccount
+    name: config-service
+roleRef:
+  kind: Role
+  name: config-service
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-service
+  labels:
+    app: config-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-service
+  template:
+    metadata:
+      labels:
+        app: config-service
+    spec:
+      serviceAccountName: config-service
+      containers:
+        - name: config-service
+          image: DOCKER_USER/config_service:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8005
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: { name: backend-secrets, key: CONFIG_DB_URL }
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef: { name: backend-secrets, key: SECRET_KEY }
+            - name: ALGORITHM
+              valueFrom:
+                secretKeyRef: { name: backend-secrets, key: ALGORITHM }
+            - name: SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef: { name: backend-secrets, key: SERVICE_TOKEN }
+          readinessProbe:
+            httpGet: { path: /health, port: 8005 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /health, port: 8005 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests: { memory: "96Mi", cpu: "50m" }
+            limits: { memory: "256Mi", cpu: "250m" }
+---
+# ClusterIP: chỉ frontend (route handler phía server) và các Pod trong cluster gọi được,
+# không mở NodePort ra ngoài.
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8005
+      targetPort: 8005
+  selector:
+    app: config-service

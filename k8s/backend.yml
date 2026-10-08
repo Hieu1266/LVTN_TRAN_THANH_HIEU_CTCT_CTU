@@ -37,6 +37,9 @@ spec:
         envFrom:
         - secretRef:
             name: backend-secrets
+        - configMapRef:
+            name: user-service-config
+            optional: true
         resources:
           requests:
             memory: "128Mi"
@@ -98,6 +101,9 @@ spec:
         envFrom:
         - secretRef:
             name: backend-secrets
+        - configMapRef:
+            name: course-service-config
+            optional: true
         resources:
           requests:
             memory: "128Mi"
@@ -159,6 +165,9 @@ spec:
         envFrom:
         - secretRef:
             name: backend-secrets
+        - configMapRef:
+            name: quiz-exam-service-config
+            optional: true
         resources:
           requests:
             memory: "128Mi"
@@ -221,6 +230,9 @@ spec:
         envFrom:
         - secretRef:
             name: backend-secrets
+        - configMapRef:
+            name: learning-progress-service-config
+            optional: true
         resources:
           requests:
             memory: "128Mi"

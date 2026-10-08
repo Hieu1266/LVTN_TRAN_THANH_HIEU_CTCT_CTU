@@ -30,6 +30,12 @@ spec:
           value: "production"
         - name: PORT
           value: "3000"
+        - name: CONFIG_SERVICE_URL
+          value: "http://config-service:8005"
+        envFrom:
+        - configMapRef:
+            name: frontend-config
+            optional: true
         resources:
           requests:
             memory: "256Mi"

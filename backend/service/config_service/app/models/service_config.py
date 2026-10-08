@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy import Column, DateTime, Integer, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import declarative_base
-from datetime import datetime, timezone
+
 Base = declarative_base()
 
 
@@ -11,4 +11,5 @@ class ServiceConfig(Base):
     id = Column(Integer, primary_key=True, index=True)
     service_name = Column(String(100), unique=True, nullable=False, index=True)
     config_json = Column(JSONB, nullable=False, default=dict)
-    updated_at = Column(DateTime(timezone=True), server_default=func.now())
+    # onupdate: bản cũ chỉ có server_default nên updated_at không bao giờ đổi sau lần tạo đầu
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
