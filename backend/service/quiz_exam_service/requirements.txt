@@ -13,3 +13,4 @@ httpx
 apscheduler
 beautifulsoup4
 underthesea
+psycopg[binary]
