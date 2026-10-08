@@ -1,13 +1,34 @@
-"""Áp dụng cấu hình runtime vào Kubernetes: ghi ConfigMap rồi (tuỳ chọn) restart Deployment.
-
-Ngoài cluster (chạy local) thì bỏ qua và chỉ lưu DB — luồng sync_env.py cũ vẫn dùng được.
-"""
 import os
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Annotated
 
-from app.core.config import SERVICE_TO_DEPLOYMENT
+from fastapi import Depends
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
 
+from app.core.config import settings, SERVICE_TO_DEPLOYMENT
+
+# 1. Khởi tạo Database Engine & SessionLocal
+# Lấy chuỗi kết nối DB từ settings hoặc biến môi trường
+DATABASE_URL = getattr(settings, "DATABASE_URL", os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/config_db"))
+
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+# 2. FastAPI Dependency & SessionDep
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+SessionDep = Annotated[Session, Depends(get_db)]
+
+# 3. Kubernetes Runtime Configuration
 _NS_FILE = Path("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 
 
@@ -41,9 +62,20 @@ def apply_runtime_config(service_name: str, runtime_cfg: dict[str, str], restart
 
     if restart:
         apps.patch_namespaced_deployment(
-            deployment, ns,
-            {"spec": {"template": {"metadata": {"annotations": {
-                "kubectl.kubernetes.io/restartedAt": datetime.now(timezone.utc).isoformat()
-            }}}}},
+            deployment,
+            ns,
+            {
+                "spec": {
+                    "template": {
+                        "metadata": {
+                            "annotations": {
+                                "kubectl.kubernetes.io/restartedAt": datetime.now(
+                                    timezone.utc
+                                ).isoformat()
+                            }
+                        }
+                    }
+                }
+            },
         )
     return "k8s"
