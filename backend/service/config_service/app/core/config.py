@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str
+    CONFIG_DB_URL: str
     # Dùng chung với các service khác để xác thực JWT của admin
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
