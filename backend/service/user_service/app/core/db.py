@@ -10,14 +10,13 @@ from app.core.security import hash_password
 
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    settings.USERS_DB_URL,
     pool_size=3,
-    max_overflow=2,
+    max_overflow=5,
     pool_timeout=30,
     pool_recycle=1800,
     pool_pre_ping=True,
 )
-
 
 def get_db():
     with Session(engine) as session:

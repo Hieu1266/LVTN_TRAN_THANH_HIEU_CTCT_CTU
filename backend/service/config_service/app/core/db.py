@@ -10,7 +10,7 @@ from app.core.config import settings
 # Service cấu hình chỉ đọc/ghi vài dòng → pool nhỏ.
 # (Bản cũ: pool_size=30 + max_overflow=50 = 80 kết nối, gần hết ngân sách 100 của Postgres.)
 engine = create_engine(
-    settings.DATABASE_URL,
+    settings.CONFIG_DB_URL,
     pool_size=3,
     max_overflow=2,
     pool_timeout=30,
