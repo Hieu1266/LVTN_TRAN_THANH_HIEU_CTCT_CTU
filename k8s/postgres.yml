@@ -6,7 +6,7 @@ data:
   init-multi-db.sh: |
     #!/bin/bash
     set -e
-    for db in user_db course_db quiz_exam_db learning_progress_db config_db; do
+    for db in users_db courses_db quizs_exam_db learnings_db config_db; do
       psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" -c "CREATE DATABASE $db"
     done
 ---
