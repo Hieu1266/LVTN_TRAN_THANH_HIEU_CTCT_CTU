@@ -8,7 +8,7 @@ metadata:
   labels:
     app: user-service
 spec:
-  replicas: 1
+  # Không khai báo "replicas": số pod do HPA (k8s/auto-scaling.yml) quản lý
   selector:
     matchLabels:
       app: user-service
@@ -40,13 +40,19 @@ spec:
         - configMapRef:
             name: user-service-config
             optional: true
+        # Chỉ nhận traffic khi uvicorn đã mở cổng (sau khi init_db chạy xong)
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "128Mi"
-            cpu: "100m"
+            cpu: "250m"      # mốc 100% để HPA tính phần trăm
           limits:
             memory: "512Mi"
-            cpu: "500m"
+            cpu: "1000m"
 ---
 apiVersion: v1
 kind: Service
@@ -72,7 +78,7 @@ metadata:
   labels:
     app: course-service
 spec:
-  replicas: 1
+  # Không khai báo "replicas": số pod do HPA (k8s/auto-scaling.yml) quản lý
   selector:
     matchLabels:
       app: course-service
@@ -104,13 +110,19 @@ spec:
         - configMapRef:
             name: course-service-config
             optional: true
+        # Chỉ nhận traffic khi uvicorn đã mở cổng (sau khi init_db chạy xong)
+        readinessProbe:
+          tcpSocket:
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "128Mi"
-            cpu: "100m"
+            cpu: "200m"      # mốc 100% để HPA tính phần trăm
           limits:
             memory: "512Mi"
-            cpu: "500m"
+            cpu: "1000m"
 ---
 apiVersion: v1
 kind: Service
@@ -136,7 +148,7 @@ metadata:
   labels:
     app: quiz-exam-service
 spec:
-  replicas: 1
+  # Không khai báo "replicas": số pod do HPA (k8s/auto-scaling.yml) quản lý
   selector:
     matchLabels:
       app: quiz-exam-service
@@ -168,10 +180,16 @@ spec:
         - configMapRef:
             name: quiz-exam-service-config
             optional: true
+        # Chỉ nhận traffic khi uvicorn đã mở cổng (sau khi init_db chạy xong)
+        readinessProbe:
+          tcpSocket:
+            port: 8002
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "128Mi"
-            cpu: "100m"
+            cpu: "100m"      # mốc 100% để HPA tính phần trăm
           limits:
             memory: "512Mi"
             cpu: "500m"
@@ -193,7 +211,6 @@ spec:
 # ==========================================
 # 4. LEARNING-PROGRESS-SERVICE
 # ==========================================
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -201,7 +218,7 @@ metadata:
   labels:
     app: learning-progress-service
 spec:
-  replicas: 1
+  # Không khai báo "replicas": số pod do HPA (k8s/auto-scaling.yml) quản lý
   selector:
     matchLabels:
       app: learning-progress-service
@@ -233,10 +250,16 @@ spec:
         - configMapRef:
             name: learning-progress-service-config
             optional: true
+        # Chỉ nhận traffic khi uvicorn đã mở cổng (sau khi init_db chạy xong)
+        readinessProbe:
+          tcpSocket:
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "128Mi"
-            cpu: "100m"
+            cpu: "100m"      # mốc 100% để HPA tính phần trăm
           limits:
             memory: "512Mi"
             cpu: "500m"
@@ -254,10 +277,10 @@ spec:
   selector:
     app: learning-progress-service
 
-
 ---
 # ==========================================
-# 5. API GATEWAY 
+# 5. API GATEWAY
+# (giữ 1 bản sao: hàng đợi ưu tiên và bộ đếm kết nối nằm trong RAM của tiến trình)
 # ==========================================
 
 apiVersion: v1

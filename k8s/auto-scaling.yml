@@ -1,0 +1,159 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70   # % so với requests.cpu của pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0      # tăng ngay khi vượt ngưỡng
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 30                # mỗi 30 giây tăng tối đa 2 pod
+    scaleDown:
+      stabilizationWindowSeconds: 120    # tải giảm kéo dài 2 phút mới bớt pod
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: course-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: course-service
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70   # % so với requests.cpu của pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0      # tăng ngay khi vượt ngưỡng
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 30                # mỗi 30 giây tăng tối đa 2 pod
+    scaleDown:
+      stabilizationWindowSeconds: 120    # tải giảm kéo dài 2 phút mới bớt pod
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: quiz-exam-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: quiz-exam-service
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70   # % so với requests.cpu của pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0      # tăng ngay khi vượt ngưỡng
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 30                # mỗi 30 giây tăng tối đa 2 pod
+    scaleDown:
+      stabilizationWindowSeconds: 120    # tải giảm kéo dài 2 phút mới bớt pod
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: learning-progress-service
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: learning-progress-service
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70   # % so với requests.cpu của pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0      # tăng ngay khi vượt ngưỡng
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 30                # mỗi 30 giây tăng tối đa 2 pod
+    scaleDown:
+      stabilizationWindowSeconds: 120    # tải giảm kéo dài 2 phút mới bớt pod
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70   # % so với requests.cpu của pod
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0      # tăng ngay khi vượt ngưỡng
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 30                # mỗi 30 giây tăng tối đa 2 pod
+    scaleDown:
+      stabilizationWindowSeconds: 120    # tải giảm kéo dài 2 phút mới bớt pod
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 60

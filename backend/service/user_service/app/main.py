@@ -7,7 +7,7 @@ app = FastAPI()
 origins = [
     settings.FRONTEND_HOST
 ]
-if settings.all_cors_origins:
+if settings.all_cors_origins():
     app.add_middleware(
         CORSMiddleware,
         # allow_origins=["*"],

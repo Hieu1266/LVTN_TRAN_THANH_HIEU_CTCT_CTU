@@ -53,6 +53,18 @@ spec:
               key: DB_PASSWORD
         - name: POSTGRES_DB
           value: postgres
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
+        readinessProbe:
+          exec:
+            command: ["sh", "-c", "pg_isready -U $POSTGRES_USER"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data

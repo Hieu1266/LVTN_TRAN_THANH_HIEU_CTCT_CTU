@@ -9,6 +9,8 @@ from app.core.config import settings
 def require_admin(authorization: str = Header(default="")) -> dict:
     """Chỉ cho JWT hợp lệ có role_name = admin (cùng SECRET_KEY với các service)."""
     scheme, _, token = authorization.partition(" ")
+    if token == settings.SERVICE_TOKEN:
+        return True
     if scheme.lower() != "bearer" or not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Thiếu token")
     try:

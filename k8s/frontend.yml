@@ -9,7 +9,7 @@ metadata:
     app: frontend
     tier: frontend
 spec:
-  replicas: 2
+  # Không khai báo "replicas": số pod do HPA (auto-scaling.yml) quản lý, tối thiểu 2
   selector:
     matchLabels:
       app: frontend
