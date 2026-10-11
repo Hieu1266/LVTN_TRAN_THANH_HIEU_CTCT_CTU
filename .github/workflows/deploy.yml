@@ -1,11 +1,13 @@
 name: Build and Deploy to K8s
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
       - 'backend/service/**'
+      - 'api-gateway/**'
       - 'frontend/**'
       - 'k8s/**'
       - '.github/workflows/**'
@@ -16,7 +18,7 @@ env:
 
 jobs:
   # ==========================================
-  # JOB 1: Build & Push 4 Backend Services
+  # JOB 1: Build & Push các Backend Service
   # ==========================================
   build-backend:
     runs-on: ubuntu-latest
@@ -27,7 +29,7 @@ jobs:
           - learning_progress_service
           - quiz_exam_service
           - user_service
-          - config_service
+          - config_service   # xóa dòng này nếu thư mục backend/service/config_service không tồn tại
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -52,7 +54,35 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
   # ==========================================
-  # JOB 2: Build & Push Next.js Frontend
+  # JOB 2: Build & Push API Gateway (thư mục api-gateway ở gốc repo)
+  # ==========================================
+  build-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Gateway Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api-gateway
+          file: ./api-gateway/Dockerfile
+          push: true
+          tags: ${{ env.DOCKER_USERNAME }}/api_gateway:latest
+          cache-from: type=gha,scope=api_gateway
+          cache-to: type=gha,mode=max,scope=api_gateway
+
+  # ==========================================
+  # JOB 3: Build & Push Next.js Frontend
   # ==========================================
   build-frontend:
     runs-on: ubuntu-latest
@@ -78,6 +108,7 @@ jobs:
           tags: ${{ env.DOCKER_USERNAME }}/frontend:latest
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
+          # Cả 4 URL backend đều trỏ về địa chỉ của API Gateway (gateway định tuyến theo đường dẫn)
           build-args: |
             NEXT_PUBLIC_FRONTEND=${{ secrets.NEXT_PUBLIC_FRONTEND }}
             NEXT_PUBLIC_USER_BACKEND_URL=${{ secrets.NEXT_PUBLIC_USER_BACKEND_URL }}
@@ -87,16 +118,28 @@ jobs:
             NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
 
   # ==========================================
-  # JOB 3: Deploy lên Kubernetes Cluster (Local)
+  # JOB 4: Deploy lên Kubernetes (self-hosted runner)
   # ==========================================
   deploy-k8s:
-    needs: [build-backend, build-frontend]
+    needs: [build-backend, build-gateway, build-frontend]
     runs-on: self-hosted
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Tạo/cập nhật Secret trực tiếp từ GitHub Secrets (không commit file secret vào repo)
+      # Chờ API server của Kubernetes trả lời (tránh lỗi connection refused khi Docker Desktop vừa bật)
+      - name: Wait for Kubernetes
+        shell: powershell
+        run: |
+          for ($i = 0; $i -lt 12; $i++) {
+            kubectl get nodes 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            Start-Sleep -Seconds 10
+          }
+          Write-Host "Khong ket noi duoc Kubernetes. Hay kiem tra Docker Desktop da bat Kubernetes chua."
+          exit 1
+
+      # Secret dùng chung cho Postgres, các backend và config-service
       - name: Create backend secret
         shell: powershell
         env:
@@ -104,42 +147,74 @@ jobs:
           ALGORITHM: ${{ secrets.ALGORITHM }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET_KEY: ${{ secrets.CLIENT_SECRET_KEY }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           USERS_DB_URL: ${{ secrets.USERS_DB_URL }}
           COURSES_DB_URL: ${{ secrets.COURSES_DB_URL }}
           QUIZS_DB_URL: ${{ secrets.QUIZS_DB_URL }}
           LEARNING_PROGRESS_DB_URL: ${{ secrets.LEARNING_PROGRESS_DB_URL }}
           CONFIG_DB_URL: ${{ secrets.CONFIG_DB_URL }}
+          STORAGE_API_URL: ${{ secrets.STORAGE_API_URL }}
           SERVICE_TOKEN: ${{ secrets.SERVICE_TOKEN }}
           FRONTEND_HOST: ${{ secrets.NEXT_PUBLIC_FRONTEND }}
-          STORAGE_API_URL: ${{ secrets.STORAGE_API_URL }}
         run: |
           kubectl create secret generic backend-secrets `
             --from-literal=SECRET_KEY="$env:SECRET_KEY" `
             --from-literal=ALGORITHM="$env:ALGORITHM" `
             --from-literal=CLIENT_ID="$env:CLIENT_ID" `
             --from-literal=CLIENT_SECRET_KEY="$env:CLIENT_SECRET_KEY" `
+            --from-literal=DB_USER="$env:DB_USER" `
+            --from-literal=DB_PASSWORD="$env:DB_PASSWORD" `
             --from-literal=USERS_DB_URL="$env:USERS_DB_URL" `
             --from-literal=COURSES_DB_URL="$env:COURSES_DB_URL" `
             --from-literal=QUIZS_DB_URL="$env:QUIZS_DB_URL" `
             --from-literal=LEARNING_PROGRESS_DB_URL="$env:LEARNING_PROGRESS_DB_URL" `
             --from-literal=CONFIG_DB_URL="$env:CONFIG_DB_URL" `
+            --from-literal=STORAGE_API_URL="$env:STORAGE_API_URL" `
             --from-literal=SERVICE_TOKEN="$env:SERVICE_TOKEN" `
             --from-literal=FRONTEND_HOST="$env:FRONTEND_HOST" `
             --from-literal=BACKEND_CORS_ORIGINS="$env:FRONTEND_HOST" `
-            --from-literal=STORAGE_API_URL="$env:STORAGE_API_URL" `
-            --dry-run=client -o yaml | kubectl apply -f - 
+            --dry-run=client -o yaml | kubectl apply -f -
 
-      # Thay DOCKER_USER trong manifest bằng Docker Hub username thật rồi apply
+      # Secret của API Gateway (gateway chỉ cần SECRET_KEY để kiểm tra JWT)
+      - name: Create gateway secret
+        shell: powershell
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        run: |
+          kubectl create secret generic gateway-secrets `
+            --from-literal=SECRET_KEY="$env:SECRET_KEY" `
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      # userlist.txt cho PgBouncer (dùng chung tài khoản DB_USER / DB_PASSWORD với Postgres)
+      # Mật khẩu không được chứa dấu nháy kép (")
+      - name: Create pgbouncer secret
+        shell: powershell
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          $line = '"' + $env:DB_USER + '" "' + $env:DB_PASSWORD + '"'
+          Set-Content -Path userlist.txt -Value $line -NoNewline -Encoding ascii
+          kubectl create secret generic pgbouncer-userlist --from-file=userlist.txt=userlist.txt --dry-run=client -o yaml | kubectl apply -f -
+          Remove-Item userlist.txt
+
+      # Thay DOCKER_USER trong manifest bằng Docker Hub username thật rồi apply.
+      # Mỗi lệnh kubectl đều kiểm tra mã thoát để bước này báo lỗi đúng chỗ.
       - name: Deploy Manifests
         shell: powershell
         run: |
-          (Get-Content k8s/backend.yml -Raw) -replace 'DOCKER_USER', $env:DOCKER_USERNAME | kubectl apply -f -
-          (Get-Content k8s/frontend.yml -Raw) -replace 'DOCKER_USER', $env:DOCKER_USERNAME | kubectl apply -f -
-          (Get-Content k8s/config-service.yml -Raw) -replace 'DOCKER_USER', $env:DOCKER_USERNAME | kubectl apply -f -
+          foreach ($f in @('postgres', 'pgBouncer', 'backend', 'config-service', 'frontend', 'auto-scaling')) {
+            Write-Host "Apply k8s/$f.yml"
+            (Get-Content "k8s/$f.yml" -Raw) -replace 'DOCKER_USER', $env:DOCKER_USERNAME | kubectl apply -f -
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
-          kubectl rollout restart deployment/user-service
-          kubectl rollout restart deployment/course-service
-          kubectl rollout restart deployment/quiz-exam-service
-          kubectl rollout restart deployment/learning-progress-service
-          kubectl rollout restart deployment/config-service
-          kubectl rollout restart deployment/frontend
+          # Chờ Postgres sẵn sàng trước khi khởi động lại các service dùng DB
+          kubectl rollout status statefulset/postgres --timeout=180s
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          foreach ($d in @('pgbouncer', 'user-service', 'course-service', 'quiz-exam-service', 'learning-progress-service', 'config-service', 'api-gateway', 'frontend')) {
+            kubectl rollout restart deployment/$d
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
