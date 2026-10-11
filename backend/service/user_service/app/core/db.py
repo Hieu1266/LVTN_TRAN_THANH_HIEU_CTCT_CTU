@@ -10,12 +10,12 @@ from app.core.security import hash_password
 
 
 engine = create_engine(
-    settings.USERS_DB_URL,
-    pool_size=30,        
-    max_overflow=50,     
-    pool_timeout=60,     
-    pool_recycle=1800,   
-    pool_pre_ping=True   
+    settings.DATABASE_URL,
+    pool_size=3,
+    max_overflow=2,
+    pool_timeout=30,
+    pool_recycle=1800,
+    pool_pre_ping=True,
 )
 
 

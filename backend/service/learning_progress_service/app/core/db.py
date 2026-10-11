@@ -6,13 +6,14 @@ from sqlmodel import SQLModel, Session, select, func
 
 
 engine = create_engine(
-    settings.LEARNING_PROGRESS_DB_URL,
-    pool_size=30,        
-    max_overflow=50,     
-    pool_timeout=60,     
-    pool_recycle=1800,   
-    pool_pre_ping=True
+    settings.DATABASE_URL,
+    pool_size=3,
+    max_overflow=2,
+    pool_timeout=30,
+    pool_recycle=1800,
+    pool_pre_ping=True,
 )
+
 
 def init_db() -> None:
     import app.models.course_enrollment

@@ -7,14 +7,24 @@ from app.models.status_catalog import StatusCatalog
 
 
 
+# engine = create_engine(
+#     settings.COURSES_DB_URL,
+#     pool_size=30,        
+#     max_overflow=50,     
+#     pool_timeout=60,     
+#     pool_recycle=1800,   
+#     pool_pre_ping=True
+# )
+
 engine = create_engine(
-    settings.COURSES_DB_URL,
-    pool_size=30,        
-    max_overflow=50,     
-    pool_timeout=60,     
-    pool_recycle=1800,   
-    pool_pre_ping=True
+    settings.DATABASE_URL,
+    pool_size=3,
+    max_overflow=2,
+    pool_timeout=30,
+    pool_recycle=1800,
+    pool_pre_ping=True,
 )
+
 
 STATUS_SEED_DATA = [
     # 1. TRẠNG THÁI CỦA CHƯƠNG TRÌNH ĐÀO TẠO (entity_type: "CURRICULUM")
